@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Gallery"
+rootProject.name = "Midterm_NIG"
 include(":app")
