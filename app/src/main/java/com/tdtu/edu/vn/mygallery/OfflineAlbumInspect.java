@@ -1,31 +1,28 @@
 package com.tdtu.edu.vn.mygallery;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
+import android.content.Intent;
+import android.provider.MediaStore;
+import java.util.List;
+import java.util.ArrayList;
 import androidx.recyclerview.widget.RecyclerView;
-
+import androidx.recyclerview.widget.GridLayoutManager;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import android.Manifest;
+import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.io.FileOutputStream;
+import java.io.IOException;
 public class OfflineAlbumInspect extends AppCompatActivity {
     private static final int REQUEST_PERMISSION = 1;
     private long albumId;
@@ -33,6 +30,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     private OfflineAlbumDao albumDao;
     private OfflineAlbum currentAlbum;
     private List<String> imageList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +47,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             return;
         }
         albumId = getIntent().getLongExtra("albumId", -1);
+
         loadImages(albumId);
 
         Button startSlideshowButton = findViewById(R.id.startSlideshowButton);
@@ -65,9 +64,8 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         });
 
 
-
         Button addPictureButton = findViewById(R.id.addPictureButton);
-        loadImages(albumId);
+
         addPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,6 +73,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             }
         });
     }
+
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -153,7 +152,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     private String copyImageToLocalStorage(Uri imageUri) {
         String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Unique filename for each image
         File outputFile = new File(getFilesDir(), fileName); // Save in internal storage
-
         try (InputStream inputStream = getContentResolver().openInputStream(imageUri);
              OutputStream outputStream = new FileOutputStream(outputFile)) {
             byte[] buffer = new byte[1024];
@@ -169,7 +167,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     }
 
 
-
     private void updateAlbum(OfflineAlbum album) {
         new Thread(() -> {
             db.offlineAlbumDao().update(album); // Update the album in the database
@@ -180,13 +177,31 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         if (currentAlbum != null && currentAlbum.imageUris != null && !currentAlbum.imageUris.isEmpty()) {
             Log.d("OfflineAlbumInspect", "imageUris from album: " + currentAlbum.imageUris);  // Log imageUris for inspection
 
-            // Ensure the URIs are properly formatted
             String[] uris = currentAlbum.imageUris.split(",");
             imageList.clear();
+            StringBuilder updatedUris = new StringBuilder();  // To hold valid URIs
 
             for (String uri : uris) {
-                Log.d("OfflineAlbumInspect", "Processing URI: " + uri);  // Log each URI
-                imageList.add(uri.trim());  // Add each URI to the list
+                uri = uri.trim();  // Remove any leading or trailing whitespace
+
+                File file = new File(uri);
+                if (file.exists()) {
+                    Log.d("OfflineAlbumInspect", "Processing URI: " + uri);  // Log each valid URI
+                    imageList.add(uri);  // Add valid image URI to the list
+                    if (updatedUris.length() > 0) {
+                        updatedUris.append(",");
+                    }
+                    updatedUris.append(uri);  // Append valid URI
+                } else {
+                    Log.d("OfflineAlbumInspect", "File does not exist: " + uri);  // Log file not found
+                }
+            }
+
+            // If the URIs list was modified, update the album
+            String newUris = updatedUris.toString();
+            if (!newUris.equals(currentAlbum.imageUris)) {
+                currentAlbum.imageUris = newUris;
+                updateAlbum(currentAlbum);  // Update the album in the database
             }
 
             Log.d("OfflineAlbumInspect", "Populated imageList: " + imageList);  // Log populated imageList
@@ -202,10 +217,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         }
     }
 
-
-
-
-
-
 }
+
+
 
