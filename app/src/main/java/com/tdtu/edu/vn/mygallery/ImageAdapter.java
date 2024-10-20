@@ -13,6 +13,8 @@ import com.bumptech.glide.Glide;
 import android.widget.Toast;
 import java.io.File;
 import java.util.List;
+import android.content.Intent;
+import android.util.Log;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
@@ -34,12 +36,28 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imagePath = imagePaths.get(position);
-
         // Load the image into the ImageView
         Glide.with(context)
                 .load(new File(imagePath))  // Load from the local file path
                 .placeholder(R.drawable.album_placeholder)  // Add a placeholder image
                 .into(holder.imageView);
+        // Set an OnClickListener on the image view
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Log the imagePath to check if it's null or valid
+                Log.d("ImageAdapter", "Image path: " + imagePath);
+
+                // Navigate to ImagesInspectActivity with the clicked image's path
+                Intent intent = new Intent(context, ImageInspectActivity.class);
+                intent.putExtra("IMAGE_PATH", imagePath); // Pass the image path to the activity
+
+                // Start the activity
+                context.startActivity(intent);
+            }
+        });
+
 
         // Handle the delete button click
         holder.deleteButton.setOnClickListener(v -> {
@@ -48,7 +66,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 if (file.delete()) {
                     // Rescan the media file so the system knows it is deleted
                     MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
-
                     // Remove the item from the list
                     imagePaths.remove(position);
                     // Notify the adapter about the removal

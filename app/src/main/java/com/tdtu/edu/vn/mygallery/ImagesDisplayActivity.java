@@ -9,7 +9,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -43,7 +42,7 @@ public class ImagesDisplayActivity extends AppCompatActivity {
     private String albumId;
     private Uri imageUri;
     private RecyclerView imagesRecyclerView;
-    private ImageButton cameraButton, storageButton;
+    private Button cameraButton, storageButton;
     private List<String> imageUrls = new ArrayList<>();  // List to store image URLs
     private ImagesAdapter imagesAdapter;  // Adapter to display images
 
