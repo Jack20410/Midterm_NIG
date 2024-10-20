@@ -1,11 +1,26 @@
+plugins {
+    kotlin("jvm") version "1.9.10" // Apply the Kotlin plugin at the top level
+}
+
 buildscript {
     repositories {
         google()
         mavenCentral()
+        repositories {
+            maven {url = uri("https://www.jitpack.io")}
+        }
     }
     dependencies {
-        classpath ("com.android.tools.build:gradle:8.0.2")
-        classpath ("com.google.gms:google-services:4.3.15")// Ensure this is the latest
+        classpath(libs.gradle)
+        classpath(libs.google.services)
     }
 }
 
+allprojects {
+    repositories {
+        google()
+
+        mavenCentral()
+        maven {url = uri("https://www.jitpack.io")}
+    }
+}
