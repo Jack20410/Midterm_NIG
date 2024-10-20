@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import android.widget.ImageButton;
+
 
 import com.bumptech.glide.Glide;
 
@@ -58,6 +60,23 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
                 context.startActivity(intent);
             }
         });
+        holder.deleteButton.setOnClickListener(v -> {
+            Log.d("ImageAdapter", "Deleting image at position: " + position);
+
+
+
+            // First, remove the image entry from Firebase Realtime Database
+            ImagesDisplayActivity.deleteImageFromFirebase(imageUrl);
+
+            // Remove the image from the list and notify the RecyclerView
+            imageUrls.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, imageUrls.size());
+
+            Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+        });
+
+
     }
         @Override
     public int getItemCount() {
@@ -66,10 +85,11 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-
+        ImageButton deleteButton;
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.imageView); // Ensure this matches your XML layout ID
+            imageView = itemView.findViewById(R.id.imageView);  // Ensure this matches your XML layout ID
+            deleteButton = itemView.findViewById(R.id.deleteButton);  // Reference the delete button
         }
     }
 

@@ -151,6 +151,31 @@ public class ImagesDisplayActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(ImagesDisplayActivity.this, "Upload failed", Toast.LENGTH_SHORT).show());
         }
     }
+
+    public static void deleteImageFromFirebase(String imageUrl) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        DatabaseReference userRef = database.getReference("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("albums");  // Navigate to the albums node
+
+        // Find and delete the image by its URL
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (DataSnapshot albumSnapshot : task.getResult().getChildren()) {
+                    for (DataSnapshot imageSnapshot : albumSnapshot.child("images").getChildren()) {
+                        String firebaseUrl = imageSnapshot.child("url").getValue(String.class);
+                        if (firebaseUrl != null && firebaseUrl.equals(imageUrl)) {
+                            imageSnapshot.getRef().removeValue();  // Remove the image entry
+                            Log.d("Firebase", "Image deleted from database.");
+                        }
+                    }
+                }
+            } else {
+                Log.e("Firebase", "Failed to retrieve data for deletion: " + task.getException());
+            }
+        });
+    }
+
     private void loadImagesFromFirebase() {
         DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("users")
