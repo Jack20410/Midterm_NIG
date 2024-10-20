@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-
+import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
 import android.widget.Button;
@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
+import java.io.File;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -38,6 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize gesture detector
         gestureDetector = new GestureDetector(this, new SwipeGestureDetector());
+
+        Button recycleBinButton = findViewById(R.id.recycleBinButton);
+        recycleBinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RecycleBinActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Set a touch listener on the RecyclerView to detect swipe gestures
         recyclerView.setOnTouchListener(new OnTouchListener() {
@@ -119,22 +130,51 @@ public class MainActivity extends AppCompatActivity {
         List<String> imagePaths = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
-        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
+        // Retrieve paths of deleted images from SharedPreferences (Recycle Bin)
+        SharedPreferences sharedPreferences = getSharedPreferences("RecycleBin", MODE_PRIVATE);
+        String deletedPaths = sharedPreferences.getString("deletedImages", "");
+        List<String> recycleBinPaths = new ArrayList<>();
+
+        if (!deletedPaths.isEmpty()) {
+            String[] pathsArray = deletedPaths.split(";");
+            for (String path : pathsArray) {
+                recycleBinPaths.add(path);
+            }
+        }
+
+        // Query the MediaStore to get all image paths
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection, null, null, null);
+
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                imagePaths.add(imagePath);
+
+                // Only add the image if it's not in the Recycle Bin
+                if (!recycleBinPaths.contains(imagePath) && new File(imagePath).exists()) {
+                    imagePaths.add(imagePath);
+                } else {
+                    Log.d("MainActivity", "Skipping deleted image: " + imagePath);
+                }
             }
             cursor.close();
         }
-        Log.d("MainActivity", "Number of images found: " + imagePaths.size());
 
-        displayImagesInGrid(imagePaths); // Display the images using RecyclerView
+        Log.d("MainActivity", "Number of images loaded: " + imagePaths.size());
+        displayImagesInGrid(imagePaths);
     }
+
+
 
     private void displayImagesInGrid(List<String> imagePaths) {
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // Display images in a grid format
+
+        // Clear the RecyclerView cache to prevent stale images from displaying
+        recyclerView.getRecycledViewPool().clear();
+        adapter.notifyDataSetChanged();
     }
+
 }
