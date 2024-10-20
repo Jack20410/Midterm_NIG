@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.List;
 import android.content.Intent;
 import android.util.Log;
+import androidx.appcompat.app.AlertDialog;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
@@ -61,25 +62,42 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         // Handle the delete button click
         holder.deleteButton.setOnClickListener(v -> {
-            File file = new File(imagePath);
-            if (file.exists()) {
-                if (file.delete()) {
-                    // Rescan the media file so the system knows it is deleted
-                    MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
-                    // Remove the item from the list
-                    imagePaths.remove(position);
-                    // Notify the adapter about the removal
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, imagePaths.size());  // Update the remaining items
-                    Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
-                } else {
-                    // If file deletion fails, show a toast (optional)
-                    Toast.makeText(context, "Failed to delete image", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
-            }
+            // Create an AlertDialog to confirm deletion
+            new AlertDialog.Builder(context)
+                    .setTitle("Delete Picture")
+                    .setMessage("Do you want to delete this picture?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Proceed with the deletion if the user confirms
+                        File file = new File(imagePath);
+                        if (file.exists()) {
+                            if (file.delete()) {
+                                // Rescan the media file so the system knows it is deleted
+                                MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
+
+                                // Remove the item from the list
+                                imagePaths.remove(position);
+
+                                // Notify the adapter about the removal
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, imagePaths.size());
+
+                                Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // If file deletion fails, show a toast (optional)
+                                Toast.makeText(context, "Failed to delete image", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // If the user presses No, dismiss the dialog and do nothing
+                        dialog.dismiss();
+                    })
+                    .create()
+                    .show();
         });
+
     }
 
     @Override

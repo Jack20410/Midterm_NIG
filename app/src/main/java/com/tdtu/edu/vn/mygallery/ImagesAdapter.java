@@ -11,10 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.ImageButton;
-
-
+import androidx.appcompat.app.AlertDialog;
 import com.bumptech.glide.Glide;
-
 import java.util.List;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
@@ -61,20 +59,31 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
             }
         });
         holder.deleteButton.setOnClickListener(v -> {
-            Log.d("ImageAdapter", "Deleting image at position: " + position);
+            // Create an AlertDialog to confirm deletion
+            new AlertDialog.Builder(context)
+                    .setTitle("Delete Picture")
+                    .setMessage("Do you want to delete this picture?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Log.d("ImageAdapter", "Deleting image at position: " + position);
 
+                        // First, remove the image entry from Firebase Realtime Database
+                        ImagesDisplayActivity.deleteImageFromFirebase(imageUrl);
 
+                        // Remove the image from the list and notify the RecyclerView
+                        imageUrls.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, imageUrls.size());
 
-            // First, remove the image entry from Firebase Realtime Database
-            ImagesDisplayActivity.deleteImageFromFirebase(imageUrl);
-
-            // Remove the image from the list and notify the RecyclerView
-            imageUrls.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, imageUrls.size());
-
-            Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // If the user presses No, dismiss the dialog and do nothing
+                        dialog.dismiss();
+                    })
+                    .create()
+                    .show();
         });
+
 
 
     }
