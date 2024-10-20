@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        loadAndDisplayImages();
         Button toggleViewButton = findViewById(R.id.toggleViewButton); // Assuming this button is defined in your XML
         toggleViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,55 +126,94 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadImagesFromDevice() {
+    private List<String> loadImagesFromDevice() {
         List<String> imagePaths = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
-        // Retrieve paths of deleted images from SharedPreferences (Recycle Bin)
-        SharedPreferences sharedPreferences = getSharedPreferences("RecycleBin", MODE_PRIVATE);
-        String deletedPaths = sharedPreferences.getString("deletedImages", "");
-        List<String> recycleBinPaths = new ArrayList<>();
-
-        if (!deletedPaths.isEmpty()) {
-            String[] pathsArray = deletedPaths.split(";");
-            for (String path : pathsArray) {
-                recycleBinPaths.add(path);
-            }
-        }
-
-        // Query the MediaStore to get all image paths
         Cursor cursor = getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection, null, null, null);
+                projection, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC");
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-
-                // Only add the image if it's not in the Recycle Bin
-                if (!recycleBinPaths.contains(imagePath) && new File(imagePath).exists()) {
+                if (new File(imagePath).exists()) {
                     imagePaths.add(imagePath);
-                } else {
-                    Log.d("MainActivity", "Skipping deleted image: " + imagePath);
                 }
             }
             cursor.close();
         }
 
         Log.d("MainActivity", "Number of images loaded: " + imagePaths.size());
+        return imagePaths;
+    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            String restoredImagePath = data.getStringExtra("restoredImagePath");
+
+            if (restoredImagePath != null) {
+                Log.d("MainActivity", "Restored image: " + restoredImagePath);
+
+                // Reload images including the restored one
+                List<String> imagePaths = loadImagesFromDevice();
+                if (!imagePaths.contains(restoredImagePath)) {
+                    imagePaths.add(0, restoredImagePath);  // Add at the top of the list
+                }
+
+                displayImagesInGrid(imagePaths);
+                Toast.makeText(this, "Image restored successfully", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+
+    // Load and display images from the device's storage
+    private void loadAndDisplayImages() {
+        List<String> imagePaths = loadImagesFromDevice();
         displayImagesInGrid(imagePaths);
     }
 
-
-
     private void displayImagesInGrid(List<String> imagePaths) {
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
-
-        // Clear the RecyclerView cache to prevent stale images from displaying
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.getRecycledViewPool().clear();
         adapter.notifyDataSetChanged();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check if a restored image path is provided in the intent extras
+        Intent intent = getIntent();
+        String restoredImagePath = intent.getStringExtra("restoredImagePath");
+
+        if (restoredImagePath != null) {
+            Log.d("MainActivity", "Restored image: " + restoredImagePath);
+
+            // Reload the images and ensure the restored image appears
+            List<String> imagePaths = loadImagesFromDevice();
+            displayImagesInGrid(imagePaths); // Reload images
+
+            // Clear the intent extra to avoid duplicate reloads
+            getIntent().removeExtra("restoredImagePath");
+
+            Toast.makeText(this, "Image restored successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            // Load images normally if no restored image is provided
+            List<String> imagePaths = loadImagesFromDevice();
+            displayImagesInGrid(imagePaths);
+        }
+    }
+
 
 }

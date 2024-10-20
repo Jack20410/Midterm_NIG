@@ -1,57 +1,61 @@
 package com.tdtu.edu.vn.mygallery;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
-import android.content.SharedPreferences;
-
+import java.io.File;
 
 public class RecycleBinActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private RecycleBinImageAdapter adapter;
     private List<String> deletedImagePaths = new ArrayList<>();
-    private ImageAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycle_bin);
 
-        // Initialize RecyclerView
         recyclerView = findViewById(R.id.recyclerViewRecycleBin);
-
-        // Set LayoutManager and Adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        loadDeletedImages(); // Load the deleted images and set the adapter
+
+        // Initialize the adapter once to avoid multiple instances
+        adapter = new RecycleBinImageAdapter(deletedImagePaths, this);
+        recyclerView.setAdapter(adapter);
+
+        loadDeletedImages(); // Load images on activity creation
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadDeletedImages(); // Reload to ensure updates are reflected
     }
 
     private void loadDeletedImages() {
-        // Retrieve the deleted images (replace with actual logic)
-        deletedImagePaths = getDeletedImages();
+        deletedImagePaths.clear(); // Clear list to avoid duplicates
 
-        // Set the adapter with the deleted images
-        adapter = new ImageAdapter(deletedImagePaths, this);
-        recyclerView.setAdapter(adapter); // Set the adapter
-
-        Log.d("RecycleBinActivity", "Loaded " + deletedImagePaths.size() + " deleted images.");
-    }
-
-    private List<String> getDeletedImages() {
         SharedPreferences sharedPreferences = getSharedPreferences("RecycleBin", MODE_PRIVATE);
         String paths = sharedPreferences.getString("deletedImages", "");
 
-        List<String> imagePaths = new ArrayList<>();
         if (!paths.isEmpty()) {
-            String[] pathArray = paths.split(";");
-            for (String path : pathArray) {
-                imagePaths.add(path);
+            for (String path : paths.split(";")) {
+                if (!path.trim().isEmpty() && new File(path).exists()) {
+                    deletedImagePaths.add(path);
+                }
             }
         }
-        return imagePaths;
+
+        Log.d("RecycleBinActivity", "Deleted images loaded: " + deletedImagePaths.size());
+
+        adapter.notifyDataSetChanged(); // Ensure RecyclerView updates correctly
     }
 
 }

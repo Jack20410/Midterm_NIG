@@ -1,7 +1,6 @@
 package com.tdtu.edu.vn.mygallery;
 
 import android.content.Context;
-import android.media.MediaScannerConnection;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
