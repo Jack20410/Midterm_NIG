@@ -1,6 +1,7 @@
 package com.tdtu.edu.vn.mygallery;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,20 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
                 .placeholder(R.drawable.album_placeholder)
                 .error(R.drawable.three_button)
                 .into(holder.imageView);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Log the imagePath to check if it's null or valid
+                Log.d("ImageAdapter", "Image path: " + imageUrl);
+
+                // Navigate to ImagesInspectActivity with the clicked image's path
+                Intent intent = new Intent(context, ImageInspectActivity.class);
+                intent.putExtra("IMAGE_PATH", imageUrl); // Pass the image path to the activity
+
+                // Start the activity
+                context.startActivity(intent);
+            }
+        });
     }
         @Override
     public int getItemCount() {
