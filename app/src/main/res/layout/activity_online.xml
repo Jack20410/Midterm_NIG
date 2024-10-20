@@ -31,13 +31,27 @@
         tools:listitem="@layout/item_album" />
 
     <!-- FloatingActionButton aligned to the bottom right -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/fab"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:contentDescription="Create Album"-->
+<!--        android:src="@android:drawable/ic_menu_add"-->
+<!--        android:layout_margin="16dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+    <Button
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Create Album"
-        app:srcCompat="@android:drawable/ic_input_add"
+        android:text="Create Album"
+        android:textColor="@android:color/white"
         android:layout_margin="16dp"
+        android:background="@drawable/blue_fill__rounded_color"
+        android:fontFamily="@font/poppins_medium"
+        android:textSize="12sp"
+        android:paddingLeft="7dp"
+        android:paddingRight="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -49,6 +63,11 @@
         android:text="Logout"
         android:textColor="@android:color/white"
         android:layout_margin="16dp"
+        android:background="@drawable/blue_fill__rounded_color"
+        android:fontFamily="@font/poppins_medium"
+        android:textSize="12sp"
+        android:paddingLeft="7dp"
+        android:paddingRight="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -35,7 +35,7 @@
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GO ONLINE"
+        android:text="Log in"
         android:background="@drawable/blue_fill__rounded_color"
         android:fontFamily="@font/poppins_medium"
         android:textSize="12sp"

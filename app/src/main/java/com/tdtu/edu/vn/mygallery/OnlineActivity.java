@@ -76,7 +76,7 @@ public class OnlineActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         albumAdapter = new AlbumAdapter(albumList, this);
         recyclerView.setAdapter(albumAdapter);
-        FloatingActionButton fab = findViewById(R.id.fab);
+        Button fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> showCreateAlbumDialog());
         // Load albums from Firebase
         loadAlbumsFromFirebase();
