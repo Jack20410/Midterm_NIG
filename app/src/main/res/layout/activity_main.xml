@@ -12,7 +12,7 @@
         android:id="@+id/searchInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Search by Date or Location"
+        android:hint="Search by Date"
         android:inputType="text"
         android:padding="8dp"
         android:background="@android:drawable/edit_text"
