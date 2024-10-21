@@ -21,7 +21,8 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/searchButton" />
+        app:layout_constraintEnd_toStartOf="@+id/searchButton"
+        android:maxLines="1"/>
 
     <!-- Search Button -->
     <Button

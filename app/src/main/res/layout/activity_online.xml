@@ -15,7 +15,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:maxLines="1"/>
 
     <!-- RecyclerView below the SearchView -->
     <androidx.recyclerview.widget.RecyclerView
