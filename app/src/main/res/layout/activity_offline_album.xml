@@ -4,22 +4,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/background_light">
 
+    <!-- Album Name Input -->
     <EditText
         android:id="@+id/albumName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Album Name"/>
+        android:hint="Album Name"
+        android:padding="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp" />
 
+    <!-- Create Album Button -->
+
+    <!-- Album List -->
     <Button
         android:id="@+id/createAlbumButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Album"/>
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="#1566e0"
+        android:elevation="4dp"
+        android:padding="12dp"
+        android:text="Create Album"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:padding="8dp"
+        android:text="Albums"
+        android:layout_gravity="center"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:textStyle="bold" />
 
     <ListView
         android:id="@+id/albumListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
+
 </LinearLayout>
