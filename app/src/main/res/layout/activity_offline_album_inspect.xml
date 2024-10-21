@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,31 +12,39 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintBottom_toTopOf="@+id/startSlideshowButton"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="16dp" />
+
     <Button
         android:id="@+id/addPictureButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Picture"
         android:background="@drawable/blue_fill__rounded_color"
         android:fontFamily="@font/poppins_medium"
-        android:textSize="12sp"
-        android:textColor="@color/white"
         android:paddingLeft="7dp"
-        android:paddingRight="7dp"/>
+        android:paddingRight="7dp"
+        android:text="Add Picture"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- In your activity_offline_album_inspect.xml -->
     <Button
         android:id="@+id/startSlideshowButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Slideshow"
         android:background="@drawable/blue_fill__rounded_color"
         android:fontFamily="@font/poppins_medium"
-        android:textSize="12sp"
-        android:textColor="@color/white"
         android:paddingLeft="7dp"
-        android:paddingRight="7dp"/>
+        android:paddingRight="7dp"
+        android:text="Start Slideshow"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="16dp" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

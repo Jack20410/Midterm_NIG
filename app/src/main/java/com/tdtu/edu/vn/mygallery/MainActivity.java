@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.provider.MediaStore;
 import android.database.Cursor;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize gesture detector
         gestureDetector = new GestureDetector(this, new SwipeGestureDetector());
 
-        Button recycleBinButton = findViewById(R.id.recycleBinButton);
+        ImageButton recycleBinButton = findViewById(R.id.recycleBinButton);
         recycleBinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
