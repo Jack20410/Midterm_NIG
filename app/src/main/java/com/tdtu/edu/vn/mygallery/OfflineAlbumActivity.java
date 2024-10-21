@@ -10,9 +10,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.List;
 import java.util.concurrent.Executors;
+import android.widget.LinearLayout;
+import android.os.Handler;
 
 public class OfflineAlbumActivity extends AppCompatActivity {
 
@@ -25,39 +28,44 @@ public class OfflineAlbumActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offline_album);
+        initUI();
+        new Handler().postDelayed(() -> {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                db = AppDatabase.getInstance(OfflineAlbumActivity.this);
+                loadAlbums();  // Load albums once the DB is ready
+            });
+        }, 100);
 
-        db = AppDatabase.getInstance(this);
+    }
+    private void initUI() {
+        LinearLayout parentLayout = findViewById(R.id.linearLayout);
+        parentLayout.requestFocus();
+        parentLayout.setFocusableInTouchMode(true);
+        parentLayout.clearFocus();
+
         albumNameInput = findViewById(R.id.albumName);
         albumListView = findViewById(R.id.albumListView);
 
+        adapter = new OfflineAlbumListAdapter(this, List.of(), db);
+        albumListView.setAdapter(adapter);
+
         Button createAlbumButton = findViewById(R.id.createAlbumButton);
-        createAlbumButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String albumName = albumNameInput.getText().toString();
-                if (!albumName.isEmpty()) {
-                    createAlbum(albumName);
-                } else {
-                    Toast.makeText(OfflineAlbumActivity.this, "Please enter an album name", Toast.LENGTH_SHORT).show();
-                }
+        createAlbumButton.setOnClickListener(v -> {
+            String albumName = albumNameInput.getText().toString();
+            if (!albumName.isEmpty()) {
+                createAlbum(albumName);
+            } else {
+                Toast.makeText(this, "Please enter an album name", Toast.LENGTH_SHORT).show();
             }
         });
 
-        albumListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Fetch the selected album using adapter.getItem(position)
-                OfflineAlbum selectedAlbum = adapter.getAlbumAtPosition(position);// No need to cast
-                Intent intent = new Intent(OfflineAlbumActivity.this, OfflineAlbumInspect.class);
-                intent.putExtra("albumId", selectedAlbum.id);  // Pass the album ID
-                startActivity(intent);
-            }
+        albumListView.setOnItemClickListener((parent, view, position, id) -> {
+            OfflineAlbum selectedAlbum = adapter.getAlbumAtPosition(position);
+            Intent intent = new Intent(OfflineAlbumActivity.this, OfflineAlbumInspect.class);
+            intent.putExtra("albumId", selectedAlbum.id);
+            startActivity(intent);
         });
-
-        // Load albums when activity starts
-        loadAlbums();
     }
-
     private void createAlbum(String albumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
             OfflineAlbum album = new OfflineAlbum(albumName);
