@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 
 public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
     private AppDatabase db;
+
     public OfflineAlbumListAdapter(Context context, List<OfflineAlbum> albums, AppDatabase db) {
         super(context, 0, albums);
         this.db = db;  // Initialize the database instance
@@ -33,30 +34,37 @@ public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_album, parent, false);
         }
+
         TextView albumName = convertView.findViewById(R.id.albumName);
         ImageButton renameButton = convertView.findViewById(R.id.renameButton);
         ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
         albumName.setText(album.name);
 
         // Handle item click (clicking on album to open)
-        albumName.setOnClickListener(v -> {
+        convertView.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), OfflineAlbumInspect.class);
             intent.putExtra("albumId", album.id); // Pass album ID to the next activity
             getContext().startActivity(intent);
         });
+
         // Handle rename button click
         renameButton.setOnClickListener(v -> {
             showRenameDialog(album);
         });
+
+        // Handle delete button click
         deleteButton.setOnClickListener(v -> {
             showDeleteConfirmationDialog(album);
         });
+
         return convertView;
     }
+
     // Helper method to get the album at a specific position
     public OfflineAlbum getAlbumAtPosition(int position) {
         return getItem(position);
     }
+
     private void showRenameDialog(OfflineAlbum album) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Rename Album");
@@ -77,6 +85,7 @@ public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
 
         builder.show();
     }
+
     private void showDeleteConfirmationDialog(OfflineAlbum album) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Album")
@@ -98,10 +107,12 @@ public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
             });
         });
     }
+
     private void runOnUiThread(Runnable action) {
         ((AppCompatActivity) getContext()).runOnUiThread(action);
     }
-    // Helper method to get the album at a specific position
+
+    // Method to rename the album in the database
     private void renameAlbum(OfflineAlbum album, String newAlbumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
             album.name = newAlbumName;
@@ -114,4 +125,3 @@ public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
         });
     }
 }
-

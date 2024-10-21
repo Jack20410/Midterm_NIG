@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:elevation="4dp">
+    android:elevation="4dp"
+    android:clickable="true"
+    android:focusable="true"><!-- Make CardView focusable and clickable -->
 
     <RelativeLayout
         android:layout_width="match_parent"
