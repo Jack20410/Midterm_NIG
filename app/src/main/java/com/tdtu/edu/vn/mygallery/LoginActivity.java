@@ -40,8 +40,30 @@ public class LoginActivity extends AppCompatActivity {
 
     // Login user with Firebase Authentication
     private void loginUser() {
-        String email = emailField.getText().toString();
-        String password = passwordField.getText().toString();
+        EditText emailInput = findViewById(R.id.emailField);
+        EditText passwordInput = findViewById(R.id.passwordField);
+
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+
+        // Validate email and password inputs
+        if (email.isEmpty()) {
+            emailInput.setError("Email is required");
+            emailInput.requestFocus();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailInput.setError("Enter a valid email");
+            emailInput.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            passwordInput.setError("Password is required");
+            passwordInput.requestFocus();
+            return;
+        }
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -59,12 +81,45 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailField.getText().toString();
         String password = passwordField.getText().toString();
 
+        EditText emailInput = findViewById(R.id.emailField);
+        EditText passwordInput = findViewById(R.id.passwordField);
+
+
+        // Input validation to prevent empty or null strings
+        if (email.isEmpty()) {
+            emailInput.setError("Email is required");
+            emailInput.requestFocus();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailInput.setError("Enter a valid email");
+            emailInput.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            passwordInput.setError("Password is required");
+            passwordInput.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            passwordInput.setError("Password must be at least 6 characters");
+            passwordInput.requestFocus();
+            return;
+        }
+
+        // Proceed with Firebase Authentication after validation
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(LoginActivity.this, "Registration Successful.", Toast.LENGTH_SHORT).show();
+                        // User registration successful
+                        Toast.makeText(LoginActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
+                        // Display the error message
+                        Toast.makeText(LoginActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
