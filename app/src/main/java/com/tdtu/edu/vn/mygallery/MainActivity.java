@@ -25,6 +25,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
 import java.io.File;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,10 +36,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
+        ConstraintLayout parentLayout = findViewById(R.id.constraintLayout);
+        parentLayout.requestFocus();
+        parentLayout.setFocusableInTouchMode(true); // Ensure it can take focus
 
+        // Clear focus from all views to ensure no element (like search bar) is focused initially
+        parentLayout.clearFocus();
         // Initialize gesture detector
         gestureDetector = new GestureDetector(this, new SwipeGestureDetector());
 
@@ -93,14 +100,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Gesture detector class for handling swipe events
+    // Gesture detector class for handling swipe events
     private class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Check if both MotionEvent objects are non-null
+            if (e1 == null || e2 == null) {
+                return false; // Ignore the gesture if events are null
+            }
+
             float diffX = e2.getX() - e1.getX();
             float diffY = e2.getY() - e1.getY();
+
+            // Only handle horizontal swipes
             if (Math.abs(diffX) > Math.abs(diffY)) {
                 if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffX < 0) {
@@ -114,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
+
 
     // Handle permission result
     @Override
