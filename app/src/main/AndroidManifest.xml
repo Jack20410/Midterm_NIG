@@ -30,14 +30,6 @@
         </activity>
 
         <!-- Set MainActivity as the Launcher -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <!-- Define LoginActivity -->
         <activity android:name=".LoginActivity" android:exported="true" />
@@ -47,6 +39,9 @@
 
         <!-- Define OnlineActivity -->
         <activity android:name=".OnlineActivity" />
+
+        <!-- Recycle Bin Activity (Register it here) -->
+        <activity android:name=".RecycleBinActivity" />
 
         <!-- Declare your new ImageInspectActivity here -->
         <activity android:name=".ImageInspectActivity" />

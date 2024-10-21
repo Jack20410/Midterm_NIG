@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-
+import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
 import android.widget.Button;
@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
+import java.io.File;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -38,6 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize gesture detector
         gestureDetector = new GestureDetector(this, new SwipeGestureDetector());
+
+        Button recycleBinButton = findViewById(R.id.recycleBinButton);
+        recycleBinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RecycleBinActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Set a touch listener on the RecyclerView to detect swipe gestures
         recyclerView.setOnTouchListener(new OnTouchListener() {
@@ -56,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        loadAndDisplayImages();
         Button toggleViewButton = findViewById(R.id.toggleViewButton); // Assuming this button is defined in your XML
         toggleViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,26 +126,94 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadImagesFromDevice() {
+    private List<String> loadImagesFromDevice() {
         List<String> imagePaths = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
-        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC");
+
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                imagePaths.add(imagePath);
+                if (new File(imagePath).exists()) {
+                    imagePaths.add(imagePath);
+                }
             }
             cursor.close();
         }
-        Log.d("MainActivity", "Number of images found: " + imagePaths.size());
 
-        displayImagesInGrid(imagePaths); // Display the images using RecyclerView
+        Log.d("MainActivity", "Number of images loaded: " + imagePaths.size());
+        return imagePaths;
+    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            String restoredImagePath = data.getStringExtra("restoredImagePath");
+
+            if (restoredImagePath != null) {
+                Log.d("MainActivity", "Restored image: " + restoredImagePath);
+
+                // Reload images including the restored one
+                List<String> imagePaths = loadImagesFromDevice();
+                if (!imagePaths.contains(restoredImagePath)) {
+                    imagePaths.add(0, restoredImagePath);  // Add at the top of the list
+                }
+
+                displayImagesInGrid(imagePaths);
+                Toast.makeText(this, "Image restored successfully", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+
+    // Load and display images from the device's storage
+    private void loadAndDisplayImages() {
+        List<String> imagePaths = loadImagesFromDevice();
+        displayImagesInGrid(imagePaths);
     }
 
     private void displayImagesInGrid(List<String> imagePaths) {
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // Display images in a grid format
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.getRecycledViewPool().clear();
+        adapter.notifyDataSetChanged();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check if a restored image path is provided in the intent extras
+        Intent intent = getIntent();
+        String restoredImagePath = intent.getStringExtra("restoredImagePath");
+
+        if (restoredImagePath != null) {
+            Log.d("MainActivity", "Restored image: " + restoredImagePath);
+
+            // Reload the images and ensure the restored image appears
+            List<String> imagePaths = loadImagesFromDevice();
+            displayImagesInGrid(imagePaths); // Reload images
+
+            // Clear the intent extra to avoid duplicate reloads
+            getIntent().removeExtra("restoredImagePath");
+
+            Toast.makeText(this, "Image restored successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            // Load images normally if no restored image is provided
+            List<String> imagePaths = loadImagesFromDevice();
+            displayImagesInGrid(imagePaths);
+        }
+    }
+
+
 }

@@ -1,7 +1,6 @@
 package com.tdtu.edu.vn.mygallery;
 
 import android.content.Context;
-import android.media.MediaScannerConnection;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,12 @@ import java.io.File;
 import java.util.List;
 import android.content.Intent;
 import android.util.Log;
+import androidx.appcompat.app.AlertDialog;
+import android.content.SharedPreferences;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import android.provider.MediaStore;
+import java.io.IOException;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
@@ -61,30 +66,90 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         // Handle the delete button click
         holder.deleteButton.setOnClickListener(v -> {
-            File file = new File(imagePath);
-            if (file.exists()) {
-                if (file.delete()) {
-                    // Rescan the media file so the system knows it is deleted
-                    MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
-                    // Remove the item from the list
-                    imagePaths.remove(position);
-                    // Notify the adapter about the removal
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, imagePaths.size());  // Update the remaining items
-                    Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
-                } else {
-                    // If file deletion fails, show a toast (optional)
-                    Toast.makeText(context, "Failed to delete image", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
-            }
+            // Create an AlertDialog to confirm deletion
+            new AlertDialog.Builder(context)
+                    .setTitle("Delete Picture")
+                    .setMessage("Do you want to move this picture to the Recycle Bin?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        File sourceFile = new File(imagePath);
+                        if (sourceFile.exists()) {
+                            // Create Recycle Bin folder inside internal storage
+                            File recycleBinFolder = new File(context.getFilesDir(), "RecycleBin");
+                            if (!recycleBinFolder.exists()) {
+                                boolean folderCreated = recycleBinFolder.mkdir();
+                                Log.d("ImageAdapter", "RecycleBin folder created: " + folderCreated);
+                            }
+
+                            // Create the new file in the Recycle Bin folder
+                            File destinationFile = new File(recycleBinFolder, sourceFile.getName());
+                            Log.d("ImageAdapter", "Source: " + sourceFile.getAbsolutePath());
+                            Log.d("ImageAdapter", "Destination: " + destinationFile.getAbsolutePath());
+
+                            // Attempt to move the file
+                            if (moveFile(sourceFile, destinationFile)) {
+                                addToRecycleBin(destinationFile.getAbsolutePath());
+
+                                // Remove the item from the list and notify the adapter
+                                imagePaths.remove(position);
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, imagePaths.size());
+
+                                Toast.makeText(context, "Image moved to Recycle Bin", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(context, "Failed to move image", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .create()
+                    .show();
         });
+
     }
 
     @Override
     public int getItemCount() {
         return imagePaths.size();
+    }
+    private boolean moveFile(File sourceFile, File destinationFile) {
+        try (FileInputStream in = new FileInputStream(sourceFile);
+             FileOutputStream out = new FileOutputStream(destinationFile)) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+
+            // Delete original file and update MediaStore
+            boolean deleted = sourceFile.delete();
+            if (deleted) {
+                context.getContentResolver().delete(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Images.Media.DATA + "=?",
+                        new String[]{sourceFile.getAbsolutePath()}
+                );
+            }
+            return deleted;
+        } catch (IOException e) {
+            Log.e("ImageAdapter", "Error moving file: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    private void addToRecycleBin(String imagePath) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("RecycleBin", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // Retrieve existing paths from the recycle bin
+        String existingPaths = sharedPreferences.getString("deletedImages", "");
+        String updatedPaths = existingPaths + ";" + imagePath; // Add new path
+
+        editor.putString("deletedImages", updatedPaths);
+        editor.apply();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
