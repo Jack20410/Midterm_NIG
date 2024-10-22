@@ -4,14 +4,16 @@
 
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:requestLegacyExternalStorage="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -43,9 +45,7 @@
 
         <!-- Declare your new ImageInspectActivity here -->
         <activity android:name=".ImageInspectActivity" />
-        <activity android:name=".OfflineAlbumActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:configChanges="orientation|screenSize"/>
+        <activity android:name=".OfflineAlbumActivity" />
         <activity android:name=".OfflineAlbumInspect" />
         <activity android:name=".SlideshowActivity" />
         <activity android:name=".FavoriteActivity" />

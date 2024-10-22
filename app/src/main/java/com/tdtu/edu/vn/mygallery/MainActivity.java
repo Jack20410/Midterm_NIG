@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.exifinterface.media.ExifInterface;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;

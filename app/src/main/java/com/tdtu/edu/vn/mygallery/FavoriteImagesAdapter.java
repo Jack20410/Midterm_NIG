@@ -18,7 +18,6 @@ import androidx.appcompat.app.AlertDialog;
 import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAdapter.ViewHolder> {
 

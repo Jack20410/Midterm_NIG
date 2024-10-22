@@ -140,10 +140,10 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
 
 
     private void removeFromRecycleBin(String imagePath) {
+        // Step 1: Remove the path from SharedPreferences
         SharedPreferences sharedPreferences = context.getSharedPreferences("RecycleBin", Context.MODE_PRIVATE);
         String existingPaths = sharedPreferences.getString("deletedImages", "");
 
-        // Split paths and remove duplicates or empty entries
         List<String> pathList = new ArrayList<>();
         for (String path : existingPaths.split(";")) {
             if (!path.trim().isEmpty() && !path.equals(imagePath)) {
@@ -151,13 +151,29 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
             }
         }
 
-        // Join the paths back and save them
+        // Save the updated paths back to SharedPreferences
         String updatedPaths = String.join(";", pathList);
-
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("deletedImages", updatedPaths);
         editor.apply();
+
+        // Step 2: Delete the actual file from the device storage
+        File file = new File(imagePath);
+        if (file.exists()) {
+            boolean deleted = file.delete();
+            if (deleted) {
+                // Optional: Notify the media store about the deletion
+                MediaScannerConnection.scanFile(context, new String[]{imagePath}, null, (path, uri) -> {
+                    Log.d("RecycleBin", "File deleted from storage: " + path);
+                });
+            } else {
+                Log.e("RecycleBin", "Failed to delete the file: " + imagePath);
+            }
+        } else {
+            Log.e("RecycleBin", "File does not exist: " + imagePath);
+        }
     }
+
 
 
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
