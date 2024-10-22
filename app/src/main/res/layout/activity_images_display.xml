@@ -22,15 +22,7 @@
         android:orientation="vertical"
         android:gravity="right"
         android:layout_alignParentBottom="true">
-
-    <!--Button to add image from camera-->
-        <ImageButton
-            android:id="@+id/cameraButton"
-            android:layout_width="70dp"
-            android:layout_height="64dp"
-            android:scaleType="fitCenter"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_menu_camera" />
+        
 
     <!--     Button to add images from storage -->
         <ImageButton
