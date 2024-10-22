@@ -3,9 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Favorite Text in Red -->
+    <TextView
+        android:id="@+id/textViewFavorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Favorite Images"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <!-- RecyclerView for Favorites -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewFavorites"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/textViewFavorite"
+        android:layout_marginTop="8dp" />
 
 </RelativeLayout>
