@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setupGestureDetector();
         setupListeners();
         checkPermissionsAndLoadImages();
+
     }
 
     // Initialization
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     // Gesture Handling
     private class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
@@ -152,14 +154,20 @@ public class MainActivity extends AppCompatActivity {
             if (Math.abs(diffX) > Math.abs(diffY) &&
                     Math.abs(diffX) > SWIPE_THRESHOLD &&
                     Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+
                 if (diffX < 0) {
+                    // Swipe left: Navigate to OfflineAlbumActivity
                     startActivity(new Intent(MainActivity.this, OfflineAlbumActivity.class));
+                } else {
+                    // Swipe right: Navigate to FavoriteActivity
+                    startActivity(new Intent(MainActivity.this, FavoriteActivity.class));
                 }
                 return true;
             }
             return false;
         }
     }
+
 
     // Image Loading and Display
     private List<ImageData> loadImagesFromDevice() {
@@ -202,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setHasFixedSize(true);
     }
-
     @Override
     protected void onResume() {
         super.onResume();

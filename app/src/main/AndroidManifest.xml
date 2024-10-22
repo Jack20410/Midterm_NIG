@@ -48,6 +48,7 @@
             android:configChanges="orientation|screenSize"/>
         <activity android:name=".OfflineAlbumInspect" />
         <activity android:name=".SlideshowActivity" />
+        <activity android:name=".FavoriteActivity" />
 
     </application>
 

@@ -201,7 +201,8 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             // Initialize the adapter if it's not already initialized
             if (adapter == null) {
                 RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                adapter = new OfflineAlbumImageAdapter(imageList, this);
+                adapter = new OfflineAlbumImageAdapter(imageList, this, albumDao, currentAlbum);
+
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
             } else {
