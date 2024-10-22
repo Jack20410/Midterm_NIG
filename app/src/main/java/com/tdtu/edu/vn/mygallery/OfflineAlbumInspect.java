@@ -30,6 +30,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     private OfflineAlbumDao albumDao;
     private OfflineAlbum currentAlbum;
     private List<String> imageList = new ArrayList<>();
+    private OfflineAlbumImageAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,47 +176,50 @@ public class OfflineAlbumInspect extends AppCompatActivity {
 
     private void displayImages() {
         if (currentAlbum != null && currentAlbum.imageUris != null && !currentAlbum.imageUris.isEmpty()) {
-            Log.d("OfflineAlbumInspect", "imageUris from album: " + currentAlbum.imageUris);  // Log imageUris for inspection
-
             String[] uris = currentAlbum.imageUris.split(",");
             imageList.clear();
-            StringBuilder updatedUris = new StringBuilder();  // To hold valid URIs
 
+            StringBuilder updatedUris = new StringBuilder();
             for (String uri : uris) {
-                uri = uri.trim();  // Remove any leading or trailing whitespace
-
+                uri = uri.trim();
                 File file = new File(uri);
                 if (file.exists()) {
-                    Log.d("OfflineAlbumInspect", "Processing URI: " + uri);  // Log each valid URI
-                    imageList.add(uri);  // Add valid image URI to the list
+                    imageList.add(uri);
                     if (updatedUris.length() > 0) {
                         updatedUris.append(",");
                     }
-                    updatedUris.append(uri);  // Append valid URI
-                } else {
-                    Log.d("OfflineAlbumInspect", "File does not exist: " + uri);  // Log file not found
+                    updatedUris.append(uri);
                 }
             }
 
-            // If the URIs list was modified, update the album
             String newUris = updatedUris.toString();
             if (!newUris.equals(currentAlbum.imageUris)) {
                 currentAlbum.imageUris = newUris;
-                updateAlbum(currentAlbum);  // Update the album in the database
+                updateAlbum(currentAlbum);
             }
 
-            Log.d("OfflineAlbumInspect", "Populated imageList: " + imageList);  // Log populated imageList
-
-            // Set up RecyclerView to display images
-            RecyclerView recyclerView = findViewById(R.id.recyclerView);
-            ImageAdapter adapter = new ImageAdapter(imageList, this);
-            recyclerView.setAdapter(adapter);
-            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));  // 3 columns for grid layout
+            // Initialize the adapter if it's not already initialized
+            if (adapter == null) {
+                RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                adapter = new OfflineAlbumImageAdapter(imageList, this);
+                recyclerView.setAdapter(adapter);
+                recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            } else {
+                adapter.notifyDataSetChanged(); // Refresh the adapter with new data
+            }
         } else {
-            Log.d("OfflineAlbumInspect", "No images found in this album.");
             Toast.makeText(this, "No images found in this album", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadImages(albumId); // Reload the album's images to reflect changes
+    }
+
+
 
 }
 

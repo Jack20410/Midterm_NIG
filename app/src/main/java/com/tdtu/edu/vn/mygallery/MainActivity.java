@@ -202,13 +202,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setHasFixedSize(true);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         allImages = loadImagesFromDevice();  // Reload images from the device
         displayImagesInGrid(allImages);      // Refresh the RecyclerView
     }
-
 
     // Image Filtering by Query
     private List<ImageData> filterImagesByQuery(List<ImageData> images, String query) {

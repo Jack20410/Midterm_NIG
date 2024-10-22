@@ -91,5 +91,12 @@ public class OfflineAlbumActivity extends AppCompatActivity {
             });
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+         // Method to load updated paths from SharedPreferences
+        adapter.notifyDataSetChanged();
+    }
+
 }
 

@@ -46,6 +46,21 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
                 .error(R.drawable.three_button) // Fallback if loading fails
                 .into(holder.imageView);
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Log the imagePath to check if it's null or valid
+                Log.d("ImageAdapter", "Image path: " + imagePath);
+
+                // Navigate to ImagesInspectActivity with the clicked image's path
+                Intent intent = new Intent(context, ImageInspectActivity.class);
+                intent.putExtra("IMAGE_PATH", imagePath); // Pass the image path to the activity
+
+                // Start the activity
+                context.startActivity(intent);
+            }
+        });
+
         holder.restoreButton.setOnClickListener(v -> {
             restoreImage(imagePath);
             imagePaths.remove(position);
@@ -122,8 +137,6 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
             Toast.makeText(context, "Failed to restore image", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 
 
     private void removeFromRecycleBin(String imagePath) {
