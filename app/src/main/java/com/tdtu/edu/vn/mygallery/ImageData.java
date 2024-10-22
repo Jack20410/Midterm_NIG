@@ -15,7 +15,6 @@ public class ImageData {
 
         public String getImagePath() { return imagePath; }
         public String getDateTaken() { return dateTaken; }
-        public String getLatitude() { return latitude; }
-        public String getLongitude() { return longitude; }
+
 
 }

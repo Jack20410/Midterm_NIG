@@ -1,28 +1,27 @@
 package com.tdtu.edu.vn.mygallery;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import android.widget.Toast;
 import java.io.File;
-import java.util.List;
-import android.content.Intent;
-import android.util.Log;
-import androidx.appcompat.app.AlertDialog;
-import android.content.SharedPreferences;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import android.provider.MediaStore;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
     private List<String> imagePaths;
@@ -70,32 +69,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         });
 
-        // Handle the delete button click
         holder.deleteButton.setOnClickListener(v -> {
-            // Create an AlertDialog to confirm deletion
             new AlertDialog.Builder(context)
                     .setTitle("Delete Picture")
                     .setMessage("Do you want to move this picture to the Recycle Bin?")
                     .setPositiveButton("Yes", (dialog, which) -> {
                         File sourceFile = new File(imagePath);
+
                         if (sourceFile.exists()) {
-                            // Create Recycle Bin folder inside internal storage
                             File recycleBinFolder = new File(context.getFilesDir(), "RecycleBin");
                             if (!recycleBinFolder.exists()) {
                                 boolean folderCreated = recycleBinFolder.mkdir();
                                 Log.d("ImageAdapter", "RecycleBin folder created: " + folderCreated);
                             }
 
-                            // Create the new file in the Recycle Bin folder
                             File destinationFile = new File(recycleBinFolder, sourceFile.getName());
                             Log.d("ImageAdapter", "Source: " + sourceFile.getAbsolutePath());
                             Log.d("ImageAdapter", "Destination: " + destinationFile.getAbsolutePath());
 
-                            // Attempt to move the file
                             if (moveFile(sourceFile, destinationFile)) {
-                                addToRecycleBin(destinationFile.getAbsolutePath());
+                                // Add to Recycle Bin preferences
+                                addImageToRecycleBin(destinationFile.getAbsolutePath());
 
-                                // Remove the item from the list and notify the adapter
+                                // Remove from current list and notify adapter
                                 imagePaths.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, imagePaths.size());
@@ -119,6 +115,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public int getItemCount() {
         return imagePaths.size();
     }
+    private boolean moveFile(File sourceFile, File destinationFile) {
+        try (FileInputStream in = new FileInputStream(sourceFile);
+             FileOutputStream out = new FileOutputStream(destinationFile)) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+
+            boolean deleted = sourceFile.delete(); // Delete original file
+            if (!deleted) {
+                Log.e("ImageAdapter", "Failed to delete the original file: " + sourceFile.getAbsolutePath());
+            }
+            return deleted;
+
+        } catch (IOException e) {
+            Log.e("ImageAdapter", "Error moving file: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+
     private void addImageToFavorites(String imagePath) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("Favorites", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -148,44 +167,37 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
 
-    private boolean moveFile(File sourceFile, File destinationFile) {
-        try (FileInputStream in = new FileInputStream(sourceFile);
-             FileOutputStream out = new FileOutputStream(destinationFile)) {
 
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
 
-            // Delete original file and update MediaStore
-            boolean deleted = sourceFile.delete();
-            if (deleted) {
-                context.getContentResolver().delete(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        MediaStore.Images.Media.DATA + "=?",
-                        new String[]{sourceFile.getAbsolutePath()}
-                );
-            }
-            return deleted;
-        } catch (IOException e) {
-            Log.e("ImageAdapter", "Error moving file: " + e.getMessage());
-            return false;
+    private void addImageToRecycleBin(String imagePath) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("RecycleBin", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // Retrieve the existing list of images in the recycle bin
+        String existingImages = sharedPreferences.getString("deletedImages", "");
+
+        // Convert the string into a List for easy manipulation
+        List<String> deletedPaths = new ArrayList<>(Arrays.asList(existingImages.split(";")));
+
+        // Check if the image is already in the recycle bin
+        if (deletedPaths.contains(imagePath)) {
+            Toast.makeText(context, "Image already in Recycle Bin", Toast.LENGTH_SHORT).show();
+        } else {
+            // Add the new image path to the list
+            deletedPaths.add(imagePath);
+
+            // Join the updated list back into a single string
+            String updatedPaths = String.join(";", deletedPaths);
+
+            // Save the updated paths back to SharedPreferences
+            editor.putString("deletedImages", updatedPaths);
+            editor.apply();
+
+            Toast.makeText(context, "Image moved to Recycle Bin", Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    private void addToRecycleBin(String imagePath) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("RecycleBin", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        // Retrieve existing paths from the recycle bin
-        String existingPaths = sharedPreferences.getString("deletedImages", "");
-        String updatedPaths = existingPaths + ";" + imagePath; // Add new path
-
-        editor.putString("deletedImages", updatedPaths);
-        editor.apply();
-    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;

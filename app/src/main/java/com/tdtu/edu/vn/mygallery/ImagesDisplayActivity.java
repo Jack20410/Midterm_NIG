@@ -10,9 +10,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +18,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,7 +34,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 public class ImagesDisplayActivity extends AppCompatActivity {
     private static final int STORAGE_REQUEST_CODE = 101;
     private static final int STORAGE_PICK_CODE = 103;
-    private ImageView imageView;
     private String albumId;
     private Uri imageUri;
     private RecyclerView imagesRecyclerView;
@@ -86,10 +82,6 @@ public class ImagesDisplayActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Album ID not found", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private boolean checkCameraPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean checkStoragePermission() {

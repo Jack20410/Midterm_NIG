@@ -110,12 +110,6 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
             }
         }).start();
     }
-
-
-
-
-
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         ImageButton deleteButton;
