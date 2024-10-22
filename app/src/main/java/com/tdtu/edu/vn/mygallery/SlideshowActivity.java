@@ -5,6 +5,9 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +24,7 @@ public class SlideshowActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     private int currentPosition = 0; // Track the current image
     private static final int SLIDE_DELAY = 3000; // 3 seconds per slide
+    private Button stopButton; // Stop button to stop the slideshow and music
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +48,26 @@ public class SlideshowActivity extends AppCompatActivity {
             slideshowAdapter = new SlideshowAdapter(imagePaths, this);
             viewPager.setAdapter(slideshowAdapter);
 
+            // Set up Now Playing Text
+            TextView nowPlayingText = findViewById(R.id.nowPlayingText);
+            nowPlayingText.setText("Now Playing: Background Music");
+
             // Start the background music
-            mediaPlayer = MediaPlayer.create(this, R.raw.music); // background_music.mp3 should be in res/raw
+            mediaPlayer = MediaPlayer.create(this, R.raw.theme); // background_music.mp3 should be in res/raw
             mediaPlayer.setLooping(true); // Loop the music
             mediaPlayer.start();
 
             // Start the slideshow
             startSlideshow();
+
+            // Set up the Stop Button to stop the slideshow and music
+            stopButton = findViewById(R.id.stopButton);
+            stopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    stopSlideshow();
+                }
+            });
         }
     }
 
@@ -69,6 +86,22 @@ public class SlideshowActivity extends AppCompatActivity {
                 }
             }
         }, SLIDE_DELAY);
+    }
+
+    private void stopSlideshow() {
+        // Stop the music
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        // Stop the slideshow
+        handler.removeCallbacksAndMessages(null); // Stop the handler
+
+        // Show a message and finish the activity
+        Toast.makeText(SlideshowActivity.this, "Slideshow stopped", Toast.LENGTH_SHORT).show();
+        finish(); // Close the activity
     }
 
     @Override
