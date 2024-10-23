@@ -22,7 +22,7 @@
 
     <!-- Create Album Button -->
 
-    <!-- Album List -->
+
     <Button
         android:id="@+id/createAlbumButton"
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
         android:padding="12dp"
         android:text="Create Album"
         android:textColor="@android:color/white" />
-
+    <!-- Album List -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp" />
+        android:divider="@android:color/white"
+        android:dividerHeight="10dp"/>
 
 </LinearLayout>
