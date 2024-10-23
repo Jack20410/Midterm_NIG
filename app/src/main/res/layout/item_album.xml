@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="16dp"
     android:elevation="4dp"
     android:clickable="true"
     android:focusable="true">      <!-- Make CardView focusable and Clickable -->
 
         <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:layout_height="match_parent"
+        android:padding="20dp"
         android:background="@drawable/border" >
 
                 <TextView
@@ -19,8 +20,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="Album Name"
-                    android:textColorHint="#b4b4b4"
-                    android:textSize="20sp"
+                    android:textColorHint="#d3d3d3"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textSize="18sp"
                     android:textColor="@android:color/black" />
 
                 <ImageButton
@@ -32,8 +34,7 @@
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Rename"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_info_details"
-                    tools:ignore="TouchTargetSizeCheck" />
+                    android:src="@android:drawable/ic_menu_info_details" />
 
                 <ImageButton
                     android:id="@+id/deleteButton"
@@ -43,8 +44,7 @@
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Delete"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    tools:ignore="TouchTargetSizeCheck" />
+                    android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
         </RelativeLayout>
-    </LinearLayout>
+</LinearLayout>
