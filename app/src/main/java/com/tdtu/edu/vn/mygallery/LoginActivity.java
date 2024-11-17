@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
+import android.view.MenuItem;
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText emailField, passwordField;
     private Button loginButton, registerButton;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,36 +33,34 @@ public class LoginActivity extends AppCompatActivity {
         emailField = findViewById(R.id.emailField);
         passwordField = findViewById(R.id.passwordField);
         loginButton = findViewById(R.id.loginButton);
-        registerButton = findViewById(R.id.registerButton); // Initialize register button
+        registerButton = findViewById(R.id.registerButton);
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> registerUser());
+
+        setupBottomNavigationView();
     }
 
     // Login user with Firebase Authentication
     private void loginUser() {
-        EditText emailInput = findViewById(R.id.emailField);
-        EditText passwordInput = findViewById(R.id.passwordField);
+        String email = emailField.getText().toString().trim();
+        String password = passwordField.getText().toString().trim();
 
-        String email = emailInput.getText().toString().trim();
-        String password = passwordInput.getText().toString().trim();
-
-        // Validate email and password inputs
         if (email.isEmpty()) {
-            emailInput.setError("Email is required");
-            emailInput.requestFocus();
+            emailField.setError("Email is required");
+            emailField.requestFocus();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInput.setError("Enter a valid email");
-            emailInput.requestFocus();
+            emailField.setError("Enter a valid email");
+            emailField.requestFocus();
             return;
         }
 
         if (password.isEmpty()) {
-            passwordInput.setError("Password is required");
-            passwordInput.requestFocus();
+            passwordField.setError("Password is required");
+            passwordField.requestFocus();
             return;
         }
 
@@ -76,50 +77,71 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
-        String email = emailField.getText().toString();
-        String password = passwordField.getText().toString();
+        String email = emailField.getText().toString().trim();
+        String password = passwordField.getText().toString().trim();
 
-        EditText emailInput = findViewById(R.id.emailField);
-        EditText passwordInput = findViewById(R.id.passwordField);
-
-
-        // Input validation to prevent empty or null strings
         if (email.isEmpty()) {
-            emailInput.setError("Email is required");
-            emailInput.requestFocus();
+            emailField.setError("Email is required");
+            emailField.requestFocus();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInput.setError("Enter a valid email");
-            emailInput.requestFocus();
+            emailField.setError("Enter a valid email");
+            emailField.requestFocus();
             return;
         }
 
         if (password.isEmpty()) {
-            passwordInput.setError("Password is required");
-            passwordInput.requestFocus();
+            passwordField.setError("Password is required");
+            passwordField.requestFocus();
             return;
         }
 
         if (password.length() < 6) {
-            passwordInput.setError("Password must be at least 6 characters");
-            passwordInput.requestFocus();
+            passwordField.setError("Password must be at least 6 characters");
+            passwordField.requestFocus();
             return;
         }
 
-        // Proceed with Firebase Authentication after validation
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // User registration successful
                         Toast.makeText(LoginActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Display the error message
                         Toast.makeText(LoginActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-}
 
+    private void setupBottomNavigationView() {
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_main:
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        return true;
+                    case R.id.navigation_offline_album:
+                        startActivity(new Intent(LoginActivity.this, OfflineAlbumActivity.class));
+                        return true;
+                    case R.id.navigation_favorite:
+                        startActivity(new Intent(LoginActivity.this, FavoriteActivity.class));
+                        return true;
+                    case R.id.navigation_search:
+                        startActivity(new Intent(LoginActivity.this, SearchActivity.class));
+                        return true;
+                    case R.id.navigation_login:
+                        // Already in LoginActivity
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // Highlight the login icon correctly
+        bottomNavigationView.setSelectedItemId(R.id.navigation_login);
+    }
+}

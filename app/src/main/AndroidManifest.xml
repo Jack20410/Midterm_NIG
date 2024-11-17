@@ -49,6 +49,10 @@
         <activity android:name=".OfflineAlbumInspect" />
         <activity android:name=".SlideshowActivity" />
         <activity android:name=".FavoriteActivity" />
+        <activity android:name=".SearchActivity"
+            android:label="Search"
+            android:exported="true" />
+
 
     </application>
 

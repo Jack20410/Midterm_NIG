@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,11 +18,9 @@
         android:background="@drawable/rounded_edittext"
         android:layout_marginBottom="16dp"
         android:textSize="16sp"
-        android:maxLines="1"/>
+        android:maxLines="1" />
 
     <!-- Create Album Button -->
-
-    <!-- Album List -->
     <Button
         android:id="@+id/createAlbumButton"
         android:layout_width="match_parent"
@@ -35,6 +33,7 @@
         android:text="Create Album"
         android:textColor="@android:color/white" />
 
+    <!-- Album List -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,9 +48,24 @@
     <ListView
         android:id="@+id/albumListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@android:color/white"
         android:divider="@android:color/white"
         android:dividerHeight="10dp" />
 
+    <!-- Bottom Navigation View -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_navigation_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/selector_bottom_nav"
+        app:itemTextColor="@color/selector_bottom_nav"
+        android:background="?android:attr/windowBackground" />
 </LinearLayout>
