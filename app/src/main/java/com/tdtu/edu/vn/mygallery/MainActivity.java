@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setHasFixedSize(true);
     }
 

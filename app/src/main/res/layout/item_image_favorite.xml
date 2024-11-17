@@ -1,26 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="200dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true"
     android:layout_margin="8dp"
     android:foreground="?android:attr/selectableItemBackground">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <!-- ImageView for displaying the image -->
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:clickable="false"
             android:focusable="false" />
-
-        <!-- Heart button positioned on the top left corner -->
-
-
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
