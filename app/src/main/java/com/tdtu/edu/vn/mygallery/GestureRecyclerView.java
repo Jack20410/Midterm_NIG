@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class GestureRecyclerView extends RecyclerView {
 
     private ScaleGestureDetector scaleGestureDetector;
+    private boolean isScaling = false;
 
     public GestureRecyclerView(@NonNull Context context) {
         super(context);
@@ -30,20 +31,32 @@ public class GestureRecyclerView extends RecyclerView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // Pass touch events to ScaleGestureDetector if it's set
+    public boolean onInterceptTouchEvent(MotionEvent event) {
         if (scaleGestureDetector != null) {
             scaleGestureDetector.onTouchEvent(event);
+            isScaling = scaleGestureDetector.isInProgress(); // Check if a scaling gesture is in progress
         }
-        return super.onTouchEvent(event);
+
+        // If scaling, don't intercept touch events for scrolling
+        if (isScaling) {
+            return false;
+        }
+
+        return super.onInterceptTouchEvent(event);
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        // Allow ScaleGestureDetector to handle gestures
+    public boolean onTouchEvent(MotionEvent event) {
         if (scaleGestureDetector != null) {
             scaleGestureDetector.onTouchEvent(event);
+            isScaling = scaleGestureDetector.isInProgress();
         }
-        return super.onInterceptTouchEvent(event);
+
+        // Allow RecyclerView to handle scrolling if not scaling
+        if (!isScaling) {
+            return super.onTouchEvent(event);
+        }
+
+        return true; // Consume touch event if scaling
     }
 }

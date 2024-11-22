@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import android.view.ScaleGestureDetector;
 import androidx.exifinterface.media.ExifInterface;
+import android.view.GestureDetector;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,8 +52,12 @@ public class MainActivity extends AppCompatActivity {
         checkPermissionsAndLoadImages();
         FileManager.createAppFolders(this);
 
-        // Initialize ScaleGestureDetector
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
+
+        GestureRecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+// Set up ScaleGestureDetector
+        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
                 float scaleFactor = detector.getScaleFactor();
@@ -62,26 +67,17 @@ public class MainActivity extends AppCompatActivity {
                 } else if (scaleFactor < 1.0f) {
                     Log.d("Gesture", "Pinching (zooming out) detected with scale factor: " + scaleFactor);
                     handleZoomOut();
-                } else {
-                    Log.d("Gesture", "No zooming detected, scale factor: " + scaleFactor);
                 }
                 return true;
             }
-
-            @Override
-            public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
-                Log.d("Gesture", "Scale gesture started.");
-                return true; // Indicate that scaling has begun
-            }
-
-            @Override
-            public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
-                Log.d("Gesture", "Scale gesture ended.");
-            }
         });
 
-        // Pass touch events from RecyclerView to ScaleGestureDetector
-        recyclerView.setOnTouchListener((v, event) -> scaleGestureDetector.onTouchEvent(event));
+// Assign the gesture detector to the custom RecyclerView
+        recyclerView.setScaleGestureDetector(scaleGestureDetector);
+
+
+        // Combine ScaleGestureDetector and GestureDetector
+
     }
 
 

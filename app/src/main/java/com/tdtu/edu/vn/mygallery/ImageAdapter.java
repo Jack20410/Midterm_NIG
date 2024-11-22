@@ -3,7 +3,6 @@ package com.tdtu.edu.vn.mygallery;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -43,11 +42,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         String imagePath = imagePaths.get(position);
         Log.d("ImageAdapter", "Binding image: " + imagePath);
 
-        // Load the image into the ImageView
-        Glide.with(context)
-                .load(new File(imagePath))
-                .placeholder(R.drawable.album_placeholder)
-                .into(holder.imageView);
+        File imageFile = new File(imagePath);
+        if (imageFile.exists()) {
+            Glide.with(context)
+                    .load(imageFile)
+                    .placeholder(R.drawable.album_placeholder) // Add a placeholder image
+                    .error(R.drawable.three_button) // Add an error image
+                    .into(holder.imageView);
+        } else {
+            Log.e("ImageAdapter", "Image file not found: " + imagePath);
+        }
 
         // Navigate to ImageInspectActivity when an image is clicked
         holder.itemView.setOnClickListener(v -> {
