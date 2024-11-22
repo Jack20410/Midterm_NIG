@@ -1,100 +1,104 @@
 package com.tdtu.edu.vn.mygallery;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.GestureDetector;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
+import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FavoriteActivity extends AppCompatActivity {
-    private List<String> favoriteImages = new ArrayList<>();
-    private RecyclerView recyclerView;
-    private FavoriteImagesAdapter adapter;
-    private GestureDetector gestureDetector;
-    private BottomNavigationView bottomNavigationView;
+    private final List<String> favoriteImages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
 
-        recyclerView = findViewById(R.id.recyclerViewFavorites);
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewFavorites);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
-        loadFavoriteImages();  // Load favorites from SharedPreferences
+        loadFavoriteImages(); // Load images from the Favorite folder
 
-        adapter = new FavoriteImagesAdapter(favoriteImages, this);
+        FavoriteImagesAdapter adapter = new FavoriteImagesAdapter(favoriteImages, this);
         recyclerView.setAdapter(adapter);
 
+        setupRecycleBinButton(); // Set up the Recycle Bin button
+        setupBottomNavigationView(); // Set up bottom navigation
+    }
 
-        setupBottomNavigationView();
+    private void setupRecycleBinButton() {
+        Button buttonRecycleBin = findViewById(R.id.buttonRecycleBin);
+        buttonRecycleBin.setOnClickListener(v -> {
+            Intent intent = new Intent(FavoriteActivity.this, RecycleBinActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadFavoriteImages() {
-        SharedPreferences sharedPreferences = getSharedPreferences("Favorites", MODE_PRIVATE);
-        String savedFavorites = sharedPreferences.getString("favoriteImages", "");
+        File favoritesFolder = new File(getFilesDir(), "Favorites");
 
-        if (!savedFavorites.isEmpty()) {
-            String[] paths = savedFavorites.split(";");
-            // Use a Set to ensure no duplicate paths are added
-            Set<String> uniquePaths = new HashSet<>(Arrays.asList(paths));
-            favoriteImages.clear(); // Clear existing data to prevent re-adding
-            favoriteImages.addAll(uniquePaths); // Add only unique paths
+        // Check if the folder exists and is a directory
+        if (favoritesFolder.exists() && favoritesFolder.isDirectory()) {
+            File[] files = favoritesFolder.listFiles();
+
+            if (files != null) {
+                favoriteImages.clear();
+
+                for (File file : files) {
+                    if (file.isFile()) { // Ensure it's a file
+                        favoriteImages.add(file.getAbsolutePath());
+                        Log.d("FavoriteImages", "Loaded favorite image: " + file.getAbsolutePath());
+                    }
+                }
+            }
+        } else {
+            Log.d("FavoriteImages", "Favorites folder is empty or does not exist.");
         }
+
+        Log.d("FavoriteImages", "Total favorite images loaded: " + favoriteImages.size());
     }
 
-
-
     private void setupBottomNavigationView() {
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_main:
+                return switch (item.getItemId()) {
+                    case R.id.navigation_main -> {
                         startActivity(new Intent(FavoriteActivity.this, MainActivity.class));
-                        return true;
-                    case R.id.navigation_offline_album:
+                        yield true;
+                    }
+                    case R.id.navigation_offline_album -> {
                         startActivity(new Intent(FavoriteActivity.this, OfflineAlbumActivity.class));
-                        return true;
-                    case R.id.navigation_favorite:
+                        yield true;
+                    }
+                    case R.id.navigation_favorite ->
                         // Already in FavoriteActivity
-                        return true;
-                    case R.id.navigation_login:
+                            true;
+                    case R.id.navigation_login -> {
                         startActivity(new Intent(FavoriteActivity.this, LoginActivity.class));
-                        return true;
-                    case R.id.navigation_search:
+                        yield true;
+                    }
+                    case R.id.navigation_search -> {
                         startActivity(new Intent(FavoriteActivity.this, SearchActivity.class));
-                        return true;
-                    default:
-                        return false;
-                }
+                        yield true;
+                    }
+                    default -> false;
+                };
             }
         });
 
         // Highlight the favorite icon correctly
         bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
     }
-
-    // Override dispatchTouchEvent to capture all touch events
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(event);
-        }
-        return super.dispatchTouchEvent(event);
-    }
-
-
 }

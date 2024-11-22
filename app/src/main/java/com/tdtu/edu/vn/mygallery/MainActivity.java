@@ -1,13 +1,15 @@
 package com.tdtu.edu.vn.mygallery;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.MenuItem;
+
 import android.view.MotionEvent;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -20,85 +22,156 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import android.view.ScaleGestureDetector;
+import androidx.exifinterface.media.ExifInterface;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Constants
     private static final int PERMISSION_REQUEST_CODE = 100;
 
-    // UI Elements and Variables
     private RecyclerView recyclerView;
     private List<ImageData> allImages;
     private BottomNavigationView bottomNavigationView;
-    private float startX;
+    private GridLayoutManager gridLayoutManager;
 
+    private int currentLayer = 2; // Start at Layer 2
+    private ScaleGestureDetector scaleGestureDetector;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        checkPermissions();
         initializeUI();
         setupBottomNavigationView();
         checkPermissionsAndLoadImages();
+        FileManager.createAppFolders(this);
+
+        // Initialize ScaleGestureDetector
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                float scaleFactor = detector.getScaleFactor();
+                if (scaleFactor > 1.0f) {
+                    Log.d("Gesture", "Zooming in detected with scale factor: " + scaleFactor);
+                    handleZoomIn();
+                } else if (scaleFactor < 1.0f) {
+                    Log.d("Gesture", "Pinching (zooming out) detected with scale factor: " + scaleFactor);
+                    handleZoomOut();
+                } else {
+                    Log.d("Gesture", "No zooming detected, scale factor: " + scaleFactor);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+                Log.d("Gesture", "Scale gesture started.");
+                return true; // Indicate that scaling has begun
+            }
+
+            @Override
+            public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
+                Log.d("Gesture", "Scale gesture ended.");
+            }
+        });
+
+        // Pass touch events from RecyclerView to ScaleGestureDetector
+        recyclerView.setOnTouchListener((v, event) -> scaleGestureDetector.onTouchEvent(event));
     }
 
-    // Initialization
+
+
+    private void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
+    }
+
     private void initializeUI() {
         recyclerView = findViewById(R.id.recyclerView);
         ConstraintLayout parentLayout = findViewById(R.id.constraintLayout);
 
-        // Clear focus on the parent layout to avoid input issues
         parentLayout.requestFocus();
         parentLayout.setFocusableInTouchMode(true);
         parentLayout.clearFocus();
 
-        // Initialize BottomNavigationView
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        gridLayoutManager = new GridLayoutManager(this, 2); // Default to Layer 2
+        recyclerView.setLayoutManager(gridLayoutManager);
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void setupBottomNavigationView() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_main:
-                        // Already in MainActivity
-                        return true;
-                    case R.id.navigation_offline_album:
-                        startActivity(new Intent(MainActivity.this, OfflineAlbumActivity.class));
-                        return true;
-                    case R.id.navigation_favorite:
-                        startActivity(new Intent(MainActivity.this, FavoriteActivity.class));
-                        return true;
-                    case R.id.navigation_login:
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        return true;
-                    case R.id.navigation_search:
-                        startActivity(new Intent(MainActivity.this, SearchActivity.class));
-                        return true;
-                    default:
-                        return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            return switch (item.getItemId()) {
+                case R.id.navigation_main -> true;
+                case R.id.navigation_offline_album -> {
+                    startActivity(new Intent(MainActivity.this, OfflineAlbumActivity.class));
+                    yield true;
                 }
-            }
+                case R.id.navigation_favorite -> {
+                    startActivity(new Intent(MainActivity.this, FavoriteActivity.class));
+                    yield true;
+                }
+                case R.id.navigation_login -> {
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    yield true;
+                }
+                case R.id.navigation_search -> {
+                    startActivity(new Intent(MainActivity.this, SearchActivity.class));
+                    yield true;
+                }
+                default -> false;
+            };
         });
 
-        // Highlight the current icon
         bottomNavigationView.setSelectedItemId(R.id.navigation_main);
     }
 
-    // Permissions Handling
     private void checkPermissionsAndLoadImages() {
-        allImages = new ArrayList<>(); // Initialize the list to prevent null pointer exceptions
+        allImages = new ArrayList<>();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSION_REQUEST_CODE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // For Android 13+ (API 33 and above)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                allImages = loadImagesFromDevice();
+                displayImagesInGrid(allImages);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // For Android 10-12 (API 29-32)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                allImages = loadImagesFromDevice();
+                displayImagesInGrid(allImages);
+            }
         } else {
-            allImages = loadImagesFromDevice();
-            displayImagesInGrid(allImages);
+            // For Android 8-9 (API 26-28)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                allImages = loadImagesFromDevice();
+                displayImagesInGrid(allImages);
+            }
         }
     }
 
@@ -107,19 +180,19 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSION_REQUEST_CODE &&
-                grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            allImages = loadImagesFromDevice();
-            displayImagesInGrid(allImages);
-            Log.d("MainActivity", "All Images: " + allImages.toString());
-        } else {
-            Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                allImages = loadImagesFromDevice();
+                displayImagesInGrid(allImages);
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
-    // Image Loading and Display
     private List<ImageData> loadImagesFromDevice() {
-        List<ImageData> imageList = new ArrayList<>(); // Always initialize the list
+        List<ImageData> imageList = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
         try (Cursor cursor = getContentResolver().query(
@@ -127,42 +200,145 @@ public class MainActivity extends AppCompatActivity {
                 null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")) {
 
             if (cursor != null) {
+                Set<String> recycleBinPaths = getRecycleBinImageNames();
+
                 while (cursor.moveToNext()) {
                     String imagePath = cursor.getString(
                             cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                    File imageFile = new File(imagePath);
 
-                    if (new File(imagePath).exists()) {
-                        imageList.add(new ImageData(imagePath, null, null, null));
+                    // Skip if the file does not exist
+                    if (!imageFile.exists()) {
+                        Log.w("LoadImages", "File not found, skipping: " + imagePath);
+                        continue;
+                    }
+
+                    // Skip if the file is in the Recycle Bin
+                    if (recycleBinPaths.contains(imageFile.getName())) {
+                        Log.d("FilteredImage", "Excluded image in Recycle Bin: " + imagePath);
+                        continue;
+                    }
+
+                    // Process the file if it exists and is not in the Recycle Bin
+                    try {
+                        ExifInterface exif = new ExifInterface(imagePath);
+                        String dateTaken = exif.getAttribute(ExifInterface.TAG_DATETIME);
+                        imageList.add(new ImageData(imagePath, dateTaken, null, null));
+                        Log.d("LoadedImage", "Image added: " + imagePath);
+                    } catch (Exception e) {
+                        Log.e("LoadImages", "Error reading Exif data for: " + imagePath, e);
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e("MainActivity", "Error loading images: " + e.getMessage());
+            Log.e("LoadImages", "Error loading images: " + e.getMessage(), e);
         }
 
-        Log.d("MainActivity", "Loaded " + imageList.size() + " images.");
+        Log.d("LoadImages", "Total images loaded: " + imageList.size());
         return imageList;
     }
 
-    private void displayImagesInGrid(List<ImageData> imageList) {
-        List<String> imagePaths = new ArrayList<>();
-        for (ImageData imageData : imageList) {
-            imagePaths.add(imageData.getImagePath());
+
+
+    private Set<String> getRecycleBinImages() {
+        Set<String> recycleBinPaths = new HashSet<>();
+        File recycleBinFolder = new File(getFilesDir(), "RecycleBin");
+
+        if (recycleBinFolder.exists() && recycleBinFolder.isDirectory()) {
+            File[] files = recycleBinFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    recycleBinPaths.add(file.getAbsolutePath());
+                    Log.d("RecycleBinImages", "File in Recycle Bin: " + file.getAbsolutePath());
+                }
+            }
         }
 
+        Log.d("RecycleBinImages", "Total files in Recycle Bin: " + recycleBinPaths.size());
+        return recycleBinPaths;
+    }
+    private Set<String> getRecycleBinImageNames() {
+        Set<String> recycleBinNames = new HashSet<>();
+        File recycleBinFolder = new File(getFilesDir(), "RecycleBin");
+
+        if (recycleBinFolder.exists() && recycleBinFolder.isDirectory()) {
+            File[] files = recycleBinFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    recycleBinNames.add(file.getName()); // Add only the filename
+                    Log.d("RecycleBinImages", "File in Recycle Bin: " + file.getAbsolutePath());
+                }
+            }
+        }
+
+        Log.d("RecycleBinImages", "Total files in Recycle Bin: " + recycleBinNames.size());
+        return recycleBinNames;
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    private void displayImagesInGrid(List<ImageData> imageList) {
+        // Fetch the Recycle Bin paths
+        Set<String> recycleBinPaths = getRecycleBinImages();
+
+        // Create a filtered list of image paths
+        List<String> imagePaths = new ArrayList<>();
+        for (ImageData imageData : imageList) {
+            String imagePath = imageData.getImagePath();
+
+            // Add the image only if it's not in the Recycle Bin
+            if (!recycleBinPaths.contains(new File(imagePath).getAbsolutePath())) {
+                imagePaths.add(imagePath);
+            } else {
+                Log.d("FilteredImage", "Excluded image in Recycle Bin: " + imagePath);
+            }
+        }
+
+        Log.d("FilteredImage", "Total images displayed: " + imagePaths.size());
+
+        // Set the adapter with the filtered list
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setHasFixedSize(true);
+    }
+
+
+    /**
+     * Callback method to refresh the grid when changes occur.
+     */
+
+
+
+
+    private void handleZoomIn() {
+        if (currentLayer == 3) {
+            currentLayer = 2;
+            gridLayoutManager.setSpanCount(2);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+        } else if (currentLayer == 2) {
+            currentLayer = 1;
+            gridLayoutManager.setSpanCount(1);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+        }
+    }
+
+    private void handleZoomOut() {
+        if (currentLayer == 1) {
+            currentLayer = 2;
+            gridLayoutManager.setSpanCount(2);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+        } else if (currentLayer == 2) {
+            currentLayer = 3;
+            gridLayoutManager.setSpanCount(3);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+        }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        allImages = loadImagesFromDevice();  // Reload images from the device
-        displayImagesInGrid(allImages);      // Refresh the RecyclerView
+    public boolean onTouchEvent(MotionEvent event) {
+        return scaleGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
-
 
 }

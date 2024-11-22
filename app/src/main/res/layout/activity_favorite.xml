@@ -24,6 +24,15 @@
         android:layout_below="@id/textViewFavorite"
         android:layout_marginBottom="56dp"
         android:layout_marginTop="8dp" />
+    <Button
+        android:id="@+id/buttonRecycleBin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Recycle Bin"
+        app:layout_constraintTop_toBottomOf="@id/recyclerViewFavorites"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Bottom Navigation View -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

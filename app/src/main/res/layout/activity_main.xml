@@ -8,11 +8,12 @@
     tools:context=".MainActivity">
 
     <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
+    <com.tdtu.edu.vn.mygallery.GestureRecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
+
 
     <!-- Bottom Navigation View -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

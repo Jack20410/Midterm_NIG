@@ -1,22 +1,19 @@
 package com.tdtu.edu.vn.mygallery;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.File;
 
 public class RecycleBinActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private RecycleBinImageAdapter adapter;
-    private List<String> deletedImagePaths = new ArrayList<>();
+    private final List<String> deletedImagePaths = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,24 +35,33 @@ public class RecycleBinActivity extends AppCompatActivity {
         super.onResume();
         loadDeletedImages(); // Reload to ensure updates are reflected
     }
-
+    public void reloadDeletedImages() {
+        loadDeletedImages(); // Reload images from the Recycle Bin folder
+    }
     private void loadDeletedImages() {
         deletedImagePaths.clear(); // Clear list to avoid duplicates
 
-        SharedPreferences sharedPreferences = getSharedPreferences("RecycleBin", MODE_PRIVATE);
-        String paths = sharedPreferences.getString("deletedImages", "");
+        File recycleBinFolder = new File(getFilesDir(), "RecycleBin");
 
-        if (!paths.isEmpty()) {
-            for (String path : paths.split(";")) {
-                if (!path.trim().isEmpty() && new File(path).exists()) {
-                    deletedImagePaths.add(path);
+        if (recycleBinFolder.exists() && recycleBinFolder.isDirectory()) {
+            File[] files = recycleBinFolder.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) { // Ensure it's a file and not a directory
+                        deletedImagePaths.add(file.getAbsolutePath());
+                        Log.d("RecycleBinActivity", "Loaded image: " + file.getAbsolutePath());
+                    }
                 }
+            } else {
+                Log.d("RecycleBinActivity", "No files found in the Recycle Bin folder.");
             }
+        } else {
+            Log.d("RecycleBinActivity", "Recycle Bin folder does not exist.");
         }
 
-        Log.d("RecycleBinActivity", "Deleted images loaded: " + deletedImagePaths.size());
+        Log.d("RecycleBinActivity", "Total deleted images loaded: " + deletedImagePaths.size());
 
         adapter.notifyDataSetChanged(); // Ensure RecyclerView updates correctly
     }
-
 }

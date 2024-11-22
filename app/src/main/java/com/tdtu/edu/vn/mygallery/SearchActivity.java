@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import android.os.Build;
+import android.Manifest;
+import androidx.core.content.ContextCompat;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -30,12 +35,12 @@ public class SearchActivity extends AppCompatActivity {
     private Button searchButton;
     private List<ImageData> allImages;
     private BottomNavigationView bottomNavigationView;
-
+    private static final int PERMISSION_REQUEST_CODE = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-
+        checkPermissionsAndLoadImages();
         initializeUI();
         setupBottomNavigationView();
         loadImagesFromDevice();
@@ -88,8 +93,51 @@ public class SearchActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.navigation_search);
     }
 
-    private void loadImagesFromDevice() {
+
+    private void checkPermissionsAndLoadImages() {
         allImages = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // For Android 13+ (API 33 and above)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                loadImagesFromDevice();
+            }
+        } else {
+            // For Android 8 to Android 12 (API 26 to 32)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                loadImagesFromDevice();
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                loadImagesFromDevice();
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Permission denied! Cannot load images.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    private List<ImageData> loadImagesFromDevice() {
+        List<ImageData> imageList = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
         try (Cursor cursor = getContentResolver().query(
@@ -104,14 +152,17 @@ public class SearchActivity extends AppCompatActivity {
                     if (new File(imagePath).exists()) {
                         ExifInterface exif = new ExifInterface(imagePath);
                         String dateTaken = exif.getAttribute(ExifInterface.TAG_DATETIME);
-                        allImages.add(new ImageData(imagePath, dateTaken, null, null));
+                        imageList.add(new ImageData(imagePath, dateTaken, null, null));
                     }
                 }
             }
         } catch (Exception e) {
             Log.e("SearchActivity", "Error loading images: " + e.getMessage());
         }
+
+        return imageList; // Return the list of images
     }
+
 
     private List<ImageData> filterImagesByQuery(List<ImageData> images, String query) {
         List<ImageData> filteredImages = new ArrayList<>();
@@ -144,7 +195,13 @@ public class SearchActivity extends AppCompatActivity {
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        recyclerView.setHasFixedSize(true);
+    }
+
+    /**
+     * Callback method to refresh the grid when changes occur.
+     */
+    private void refreshImages() {
+        allImages = loadImagesFromDevice();
+        displayImagesInGrid(allImages);
     }
 }
