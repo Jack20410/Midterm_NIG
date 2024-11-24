@@ -4,11 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +21,9 @@ import com.github.chrisbanes.photoview.PhotoView;
 import androidx.viewpager2.widget.ViewPager2;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImageInspectActivity extends AppCompatActivity {
 
@@ -34,6 +37,8 @@ public class ImageInspectActivity extends AppCompatActivity {
     private int currentIndex; // Current image index in the folder
     private GestureDetector gestureDetector; // GestureDetector for handling swipe gestures
     private ViewPager2 viewPager;
+    private Map<String, String> imageTags = new HashMap<>();
+
     @Override
 
 
@@ -47,6 +52,16 @@ public class ImageInspectActivity extends AppCompatActivity {
         noImagesMessage = findViewById(R.id.noImagesMessage);
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         moveToRecycleBinButton = findViewById(R.id.moveToRecycleBinButton);
+        Button addTagButton = findViewById(R.id.addTagButton);
+
+        addTagButton.setOnClickListener(v -> {
+            String currentImagePath = imagePaths.get(currentIndex);
+            if (currentImagePath != null) {
+                showTagDialog(currentImagePath);
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Get the image path from the intent
         Intent intent = getIntent();
@@ -79,12 +94,100 @@ public class ImageInspectActivity extends AppCompatActivity {
         // Call the new setupViewPager with the valid imagePath
         setupViewPager(imagePath);
 
-        // Add to Favorites Button
-        addToFavoritesButton.setOnClickListener(v -> confirmAddToFavorites(imagePaths.get(currentIndex)));
+        addTagButton.setOnClickListener(v -> {
+            if (!imagePaths.isEmpty()) {
+                showTagDialog(imagePaths.get(currentIndex));
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        // Move to Recycle Bin Button
-        moveToRecycleBinButton.setOnClickListener(v -> confirmMoveToRecycleBin(imagePaths.get(currentIndex)));
+        addToFavoritesButton.setOnClickListener(v -> {
+            if (!imagePaths.isEmpty()) {
+                confirmAddToFavorites(imagePaths.get(currentIndex));
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        moveToRecycleBinButton.setOnClickListener(v -> {
+            if (!imagePaths.isEmpty()) {
+                confirmMoveToRecycleBin(imagePaths.get(currentIndex));
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
+
+
+    private void showTagDialog(String imagePath) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add/Modify Tag");
+
+        // Create an input field
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        // Load tag asynchronously
+        ImageTagDatabase db = ImageTagDatabase.getInstance(this);
+        new Thread(() -> {
+            ImageTag existingTag = db.imageTagDao().getTag(imagePath);
+
+            runOnUiThread(() -> {
+                // Pre-fill the current tag if it exists
+                if (existingTag != null) {
+                    input.setText(existingTag.tag);
+                }
+
+                builder.setView(input);
+
+                // Add dialog buttons
+                builder.setPositiveButton("Save", (dialog, which) -> {
+                    String tag = input.getText().toString().trim();
+
+                    if (tag.isEmpty()) {
+                        Toast.makeText(this, "Tag cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Check for duplicate tags asynchronously
+                    new Thread(() -> {
+                        List<ImageTag> allTags = db.imageTagDao().getAllTags();
+                        boolean isDuplicate = allTags.stream()
+                                .anyMatch(t -> t.tag.equalsIgnoreCase(tag) && !t.imagePath.equals(imagePath));
+
+                        if (isDuplicate) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Tag already defined, please use another one.", Toast.LENGTH_SHORT).show();
+                            });
+                        } else {
+                            // Save or update tag if no duplicate exists
+                            ImageTag imageTag = new ImageTag();
+                            imageTag.imagePath = imagePath;
+                            imageTag.tag = tag;
+
+                            if (existingTag == null) {
+                                db.imageTagDao().insertTag(imageTag);
+                            } else {
+                                db.imageTagDao().updateTag(imageTag);
+                            }
+
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Tag saved: " + tag, Toast.LENGTH_SHORT).show();
+                                Log.d("ImageInspectActivity", "Tag saved for " + imagePath + ": " + tag);
+                            });
+                        }
+                    }).start();
+                });
+
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+                builder.show();
+            });
+        }).start();
+    }
+
 
 
 
@@ -142,8 +245,21 @@ public class ImageInspectActivity extends AppCompatActivity {
         noImagesMessage.setVisibility(View.GONE);
         viewPager.setVisibility(View.VISIBLE);
 
+        // Add a PageChangeCallback to update currentIndex and imagePath
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                currentIndex = position; // Update currentIndex
+                ImageInspectActivity.this.imagePath = imagePaths.get(position); // Update imagePath field
+                Log.d("ImageInspectActivity", "Page selected. Updated index: " + currentIndex + ", Path: " + ImageInspectActivity.this.imagePath);
+            }
+        });
+
         Log.d("ImageInspectActivity", "setupViewPager called with imagePath: " + imagePath + ", currentIndex: " + currentIndex);
     }
+
+
 
 
 
@@ -257,32 +373,9 @@ public class ImageInspectActivity extends AppCompatActivity {
     }
 
 
-    private void notifyMainActivity(String imagePath) {
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("REMOVED_IMAGE_PATH", imagePath);
-        setResult(RESULT_OK, resultIntent);
-    }
 
-    private boolean showNextImage() {
-        if (imagePaths != null && !imagePaths.isEmpty()) {
-            currentIndex++;
-            if (currentIndex >= imagePaths.size()) {
-                currentIndex = 0; // Loop back to the first image if at the end
-            }
 
-            String nextImagePath = imagePaths.get(currentIndex);
-            if (nextImagePath != null && !nextImagePath.isEmpty()) {
-                displayImage(nextImagePath);
-                return true; // Successfully displayed the next image
-            } else {
-                Log.e("ImageInspectActivity", "Next image path is null or invalid in showNextImage.");
-                return false; // Failed to display the next image
-            }
-        } else {
-            Log.e("ImageInspectActivity", "No images available in showNextImage.");
-            return false;
-        }
-    }
+
 
     private boolean showPreviousImage() {
         if (imagePaths != null && !imagePaths.isEmpty()) {
@@ -308,8 +401,6 @@ public class ImageInspectActivity extends AppCompatActivity {
     private void displayImage(String path) {
         if (path == null || path.isEmpty()) {
             Log.e("ImageInspectActivity", "Invalid image path at current index. Attempting to show previous image.");
-
-            // Fallback to the previous image
             if (!showPreviousImage()) {
                 Log.e("ImageInspectActivity", "No valid previous image. Showing no images message.");
                 showNoImagesMessage();
@@ -320,8 +411,6 @@ public class ImageInspectActivity extends AppCompatActivity {
         File file = new File(path);
         if (!file.exists()) {
             Log.e("ImageInspectActivity", "File does not exist at path: " + path);
-
-            // Fallback to the previous image
             if (!showPreviousImage()) {
                 Log.e("ImageInspectActivity", "No valid previous image. Showing no images message.");
                 showNoImagesMessage();
@@ -329,7 +418,6 @@ public class ImageInspectActivity extends AppCompatActivity {
             return;
         }
 
-        // Proceed to load the valid image
         Glide.with(this)
                 .load(file)
                 .placeholder(R.drawable.album_placeholder)
@@ -344,8 +432,12 @@ public class ImageInspectActivity extends AppCompatActivity {
         }
 
         imagePath = path; // Update the current image path
-        Log.d("ImageInspectActivity", "Displaying image: " + path);
+
+        // Display the tag for the current image
+        String tag = imageTags.getOrDefault(imagePath, "No tag");
+        Log.d("ImageInspectActivity", "Displaying image: " + path + " | Tag: " + tag);
     }
+
 
 
     private void showNoImagesMessage() {

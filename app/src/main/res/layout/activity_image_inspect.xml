@@ -56,5 +56,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Move to Recycle Bin" />
+        <Button
+            android:id="@+id/addTagButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add/Modify Tag"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/moveToRecycleBinButton"
+            android:layout_alignParentStart="true" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

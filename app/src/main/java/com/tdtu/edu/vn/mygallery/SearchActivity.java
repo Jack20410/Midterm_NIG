@@ -1,5 +1,6 @@
 package com.tdtu.edu.vn.mygallery;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -33,72 +35,95 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText searchInput;
     private Button searchButton;
-    private List<ImageData> allImages;
+    private Button searchDateButton;
+    private List<ImageData> allImages; // List for images fetched from the database
     private BottomNavigationView bottomNavigationView;
     private static final int PERMISSION_REQUEST_CODE = 100;
+
+    private ImageTagDatabase db; // Room Database instance
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        checkPermissionsAndLoadImages();
+
+        db = ImageTagDatabase.getInstance(this); // Initialize the database
         initializeUI();
         setupBottomNavigationView();
-        loadImagesFromDevice();
 
+        // Check permissions and load images
+        checkPermissionsAndLoadImages();
+
+        // Search by tag/keyword
         searchButton.setOnClickListener(v -> {
             String query = searchInput.getText().toString().trim();
             if (query.isEmpty()) {
                 displayImagesInGrid(allImages);
             } else {
-                List<ImageData> filteredImages = filterImagesByQuery(allImages, query);
-                displayImagesInGrid(filteredImages);
+                searchImagesByTag(query);
             }
         });
+
+        // Search by date
+        searchDateButton.setOnClickListener(v -> showDatePickerDialog());
     }
 
     private void initializeUI() {
         recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // Grid layout with 3 columns
         searchInput = findViewById(R.id.searchInput);
         searchButton = findViewById(R.id.searchButton);
+        searchDateButton = findViewById(R.id.searchDateButton);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
     }
 
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    // Format the selected date as dd-MM-yyyy
+                    String selectedDate = String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month + 1, year);
+
+                    // Filter images based on the selected date
+                    List<ImageData> filteredImages = filterImagesByDate(allImages, selectedDate);
+
+                    // Display the filtered images
+                    displayImagesInGrid(filteredImages);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
     private void setupBottomNavigationView() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_main:
-                        startActivity(new Intent(SearchActivity.this, MainActivity.class));
-                        return true;
-                    case R.id.navigation_offline_album:
-                        startActivity(new Intent(SearchActivity.this, OfflineAlbumActivity.class));
-                        return true;
-                    case R.id.navigation_favorite:
-                        startActivity(new Intent(SearchActivity.this, FavoriteActivity.class));
-                        return true;
-                    case R.id.navigation_login:
-                        startActivity(new Intent(SearchActivity.this, LoginActivity.class));
-                        return true;
-                    case R.id.navigation_search:
-                        // Already in SearchActivity
-                        return true;
-                    default:
-                        return false;
-                }
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_main:
+                    startActivity(new Intent(SearchActivity.this, MainActivity.class));
+                    return true;
+                case R.id.navigation_offline_album:
+                    startActivity(new Intent(SearchActivity.this, OfflineAlbumActivity.class));
+                    return true;
+                case R.id.navigation_favorite:
+                    startActivity(new Intent(SearchActivity.this, FavoriteActivity.class));
+                    return true;
+                case R.id.navigation_login:
+                    startActivity(new Intent(SearchActivity.this, LoginActivity.class));
+                    return true;
+                case R.id.navigation_search:
+                    return true; // Already in search activity
+                default:
+                    return false;
             }
         });
-
-        // Highlight the search icon
         bottomNavigationView.setSelectedItemId(R.id.navigation_search);
     }
 
-
     private void checkPermissionsAndLoadImages() {
-        allImages = new ArrayList<>();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // For Android 13+ (API 33 and above)
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -108,7 +133,6 @@ public class SearchActivity extends AppCompatActivity {
                 loadImagesFromDevice();
             }
         } else {
-            // For Android 8 to Android 12 (API 26 to 32)
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -119,6 +143,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -126,18 +151,15 @@ public class SearchActivity extends AppCompatActivity {
 
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
                 loadImagesFromDevice();
             } else {
-                // Permission denied
                 Toast.makeText(this, "Permission denied! Cannot load images.", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-
-    private List<ImageData> loadImagesFromDevice() {
-        List<ImageData> imageList = new ArrayList<>();
+    private void loadImagesFromDevice() {
+        allImages = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media.DATA};
 
         try (Cursor cursor = getContentResolver().query(
@@ -152,23 +174,50 @@ public class SearchActivity extends AppCompatActivity {
                     if (new File(imagePath).exists()) {
                         ExifInterface exif = new ExifInterface(imagePath);
                         String dateTaken = exif.getAttribute(ExifInterface.TAG_DATETIME);
-                        imageList.add(new ImageData(imagePath, dateTaken, null, null));
+                        allImages.add(new ImageData(imagePath, dateTaken, null));
                     }
                 }
             }
         } catch (Exception e) {
             Log.e("SearchActivity", "Error loading images: " + e.getMessage());
         }
+    }
 
-        return imageList; // Return the list of images
+    private void searchImagesByTag(String query) {
+        new Thread(() -> {
+            List<ImageTag> taggedImages = db.imageTagDao().searchTags(query);
+            List<ImageData> filteredImages = new ArrayList<>();
+
+            for (ImageTag tag : taggedImages) {
+                File imageFile = new File(tag.imagePath);
+                if (imageFile.exists()) {
+                    filteredImages.add(new ImageData(tag.imagePath, null, tag.tag));
+                } else {
+                    Log.e("SearchActivity", "Image file not found: " + tag.imagePath);
+                }
+            }
+
+            runOnUiThread(() -> {
+                if (!filteredImages.isEmpty()) {
+                    // Display Toast when tags are found
+                    Toast.makeText(SearchActivity.this, "Found " + filteredImages.size() + " image(s) with the tag.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Display Toast when no tags are found
+                    Toast.makeText(SearchActivity.this, "No images found with that tag.", Toast.LENGTH_SHORT).show();
+                }
+
+                // Display the filtered images in the grid
+                Log.d("SearchActivity", "Filtered images: " + filteredImages);
+                displayImagesInGrid(filteredImages);
+            });
+        }).start();
     }
 
 
-    private List<ImageData> filterImagesByQuery(List<ImageData> images, String query) {
+
+    private List<ImageData> filterImagesByDate(List<ImageData> images, String queryDate) {
         List<ImageData> filteredImages = new ArrayList<>();
         SimpleDateFormat exifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.getDefault());
-
-        query = query.replace("/", "-");
 
         for (ImageData image : images) {
             String dateTaken = image.getDateTaken();
@@ -176,7 +225,8 @@ public class SearchActivity extends AppCompatActivity {
 
             try {
                 Date exifDate = exifDateFormat.parse(dateTaken);
-                if (query.equals(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(exifDate))) {
+                String formattedDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(exifDate);
+                if (queryDate.equals(formattedDate)) {
                     filteredImages.add(image);
                 }
             } catch (ParseException e) {
@@ -192,16 +242,16 @@ public class SearchActivity extends AppCompatActivity {
             imagePaths.add(imageData.getImagePath());
         }
 
+        if (imagePaths.isEmpty()) {
+            Log.e("SearchActivity", "No valid images to display in the grid.");
+        } else {
+            Log.d("SearchActivity", "Displaying images in grid: " + imagePaths);
+        }
+
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 
-    /**
-     * Callback method to refresh the grid when changes occur.
-     */
-    private void refreshImages() {
-        allImages = loadImagesFromDevice();
-        displayImagesInGrid(allImages);
-    }
 }
+

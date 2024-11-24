@@ -1,20 +1,31 @@
 package com.tdtu.edu.vn.mygallery;
 
 public class ImageData {
-        private String imagePath;
-        private String dateTaken;
-        private String latitude;
-        private String longitude;
+    private String imagePath;
+    private String dateTaken;
+    private String tag;
 
-        public ImageData(String imagePath, String dateTaken, String latitude, String longitude) {
-            this.imagePath = imagePath;
-            this.dateTaken = dateTaken;
-            this.latitude = latitude;
-            this.longitude = longitude;
-        }
+    // Add a constructor and getter/setter for tags
+    public ImageData(String imagePath, String dateTaken, String tag) {
+        this.imagePath = imagePath;
+        this.dateTaken = dateTaken;
+        this.tag = tag;
+    }
 
-        public String getImagePath() { return imagePath; }
-        public String getDateTaken() { return dateTaken; }
+    public String getImagePath() {
+        return imagePath;
+    }
 
+    public String getDateTaken() {
+        return dateTaken;
+    }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 }
+

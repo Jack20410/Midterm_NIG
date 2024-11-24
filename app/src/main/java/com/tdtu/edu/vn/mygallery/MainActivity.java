@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
         try (Cursor cursor = getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-                null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")) {
+                null, null, null)) { // Remove sorting here to sort manually later
 
             if (cursor != null) {
                 Set<String> recycleBinPaths = getRecycleBinImageNames();
@@ -242,20 +242,17 @@ public class MainActivity extends AppCompatActivity {
                         continue;
                     }
 
-                    // Process the file if it exists and is not in the Recycle Bin
-                    try {
-                        ExifInterface exif = new ExifInterface(imagePath);
-                        String dateTaken = exif.getAttribute(ExifInterface.TAG_DATETIME);
-                        imageList.add(new ImageData(imagePath, dateTaken, null, null));
-                        Log.d("LoadedImage", "Image added: " + imagePath);
-                    } catch (Exception e) {
-                        Log.e("LoadImages", "Error reading Exif data for: " + imagePath, e);
-                    }
+                    // Add the image
+                    imageList.add(new ImageData(imagePath, null, null));
                 }
             }
         } catch (Exception e) {
             Log.e("LoadImages", "Error loading images: " + e.getMessage(), e);
         }
+
+        // Sort the image list by file name
+        imageList.sort((image1, image2) -> new File(image1.getImagePath()).getName()
+                .compareToIgnoreCase(new File(image2.getImagePath()).getName()));
 
         Log.d("LoadImages", "Total images loaded: " + imageList.size());
         return imageList;
@@ -317,11 +314,15 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("FilteredImage", "Total images displayed: " + imagePaths.size());
 
+        // Ensure the list is sorted alphabetically by file name
+        imagePaths.sort(String::compareToIgnoreCase);
+
         // Set the adapter with the filtered list
         ImageAdapter adapter = new ImageAdapter(imagePaths, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
+
 
 
     /**
