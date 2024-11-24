@@ -7,14 +7,26 @@
     android:layout_height="match_parent"
     tools:context=".ImageInspectActivity">
 
-    <!-- PhotoView for displaying the image -->
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/photoView"
-        android:layout_width="0dp"
+    <!-- ViewPager2 for swiping through images -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/buttonContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- TextView for no images message -->
+    <TextView
+        android:id="@+id/noImagesMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You have no images"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -37,9 +49,12 @@
             android:layout_marginEnd="8dp"
             android:text="Add to Favorites" />
 
-
-
-
+        <!-- Move to Recycle Bin Button -->
+        <Button
+            android:id="@+id/moveToRecycleBinButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Move to Recycle Bin" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

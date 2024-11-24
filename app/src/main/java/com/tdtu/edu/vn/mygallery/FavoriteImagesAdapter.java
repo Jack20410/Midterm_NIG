@@ -65,22 +65,27 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
         holder.deleteButton.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Remove Picture")
-                    .setMessage("Do you want to remove this picture from Favorites?")
+                    .setMessage("Do you want to permanently delete this picture from Favorites?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        // Remove the image from favorites
-                        removeFromFavorites(imagePath);
+                        // Permanently delete the image from Favorites
+                        boolean isDeleted = permanentlyDeleteFromFavorites(imagePath);
 
-                        // Remove the item from the list and notify the adapter
-                        imagePaths.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, imagePaths.size());
+                        if (isDeleted) {
+                            // Remove the item from the list and notify the adapter
+                            imagePaths.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, imagePaths.size());
 
-                        Toast.makeText(context, "Image removed from Favorites", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Image permanently deleted from Favorites", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context, "Failed to delete image from Favorites", Toast.LENGTH_SHORT).show();
+                        }
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .create()
                     .show();
         });
+
     }
 
     @Override
@@ -103,7 +108,31 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
         editor.putString("favoriteImages", updatedFavorites);
         editor.apply();
     }
+    private boolean permanentlyDeleteFromFavorites(String imagePath) {
+        File favoritesFolder = new File(context.getFilesDir(), "Favorites");
+        File imageFile = new File(imagePath);
 
+        if (favoritesFolder.exists() && favoritesFolder.isDirectory()) {
+            File[] files = favoritesFolder.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().equals(imageFile.getName())) { // Check by file name
+                        boolean deleted = file.delete();
+                        if (deleted) {
+                            Log.d("Favorites", "Image permanently deleted from Favorites: " + file.getAbsolutePath());
+                            return true; // Return success
+                        } else {
+                            Log.d("Favorites", "Failed to delete image from Favorites: " + file.getAbsolutePath());
+                            return false; // Return failure
+                        }
+                    }
+                }
+            }
+        }
+
+        return false; // Image not found in Favorites
+    }
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

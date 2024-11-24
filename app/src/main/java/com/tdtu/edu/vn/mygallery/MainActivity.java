@@ -81,7 +81,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshImageGrid();
+    }
+    private void refreshImageGrid() {
+        allImages = loadImagesFromDevice();
+        displayImagesInGrid(allImages);
+    }
+    public void openImageInspectActivity(String imagePath) {
+        Intent intent = new Intent(this, ImageInspectActivity.class);
+        intent.putExtra("IMAGE_PATH", imagePath);
+        startActivityForResult(intent, 101); // Use 101 as a request code
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == 101 && resultCode == RESULT_OK) {
+            if (data != null) {
+                String removedImagePath = data.getStringExtra("REMOVED_IMAGE_PATH");
+                if (removedImagePath != null) {
+                    // Refresh the image grid to reflect the changes
+                    refreshImageGrid();
+                }
+            }
+        }
+    }
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
