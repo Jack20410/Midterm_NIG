@@ -1,5 +1,6 @@
 package com.tdtu.edu.vn.mygallery;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -73,36 +74,42 @@ public class OfflineAlbumActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void setupBottomNavigationView() {
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_main:
-                        startActivity(new Intent(OfflineAlbumActivity.this, MainActivity.class));
-                        return true;
-                    case R.id.navigation_offline_album:
-                        // Already in OfflineAlbumActivity
-                        return true;
-                    case R.id.navigation_favorite:
-                        startActivity(new Intent(OfflineAlbumActivity.this, FavoriteActivity.class));
-                        return true;
-                    case R.id.navigation_login:
-                        startActivity(new Intent(OfflineAlbumActivity.this, LoginActivity.class));
-                        return true;
-                    case R.id.navigation_search:
-                        startActivity(new Intent(OfflineAlbumActivity.this, SearchActivity.class));
-                        return true;
-                    default:
-                        return false;
-                }
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        // Ensure `bottomNavigationView` is not null
+        if (bottomNavigationView == null) {
+            Toast.makeText(this, "BottomNavigationView not found. Check your layout file.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_offline_album:
+                    // Already in OfflineAlbumActivity
+                    return true;
+                case R.id.navigation_main:
+                    startActivity(new Intent(OfflineAlbumActivity.this, MainActivity.class));
+                    return true;
+                case R.id.navigation_favorite:
+                    startActivity(new Intent(OfflineAlbumActivity.this, FavoriteActivity.class));
+                    return true;
+                case R.id.navigation_login:
+                    startActivity(new Intent(OfflineAlbumActivity.this, LoginActivity.class));
+                    return true;
+                case R.id.navigation_search:
+                    startActivity(new Intent(OfflineAlbumActivity.this, SearchActivity.class));
+                    return true;
+                default:
+                    return false;
             }
         });
 
-        // Highlight the offline album icon correctly
-        new Handler().post(() -> bottomNavigationView.setSelectedItemId(R.id.navigation_offline_album));
+        // Set the selected item to "Offline Album"
+        bottomNavigationView.setSelectedItemId(R.id.navigation_offline_album);
     }
+
 
     private void createAlbum(String albumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
