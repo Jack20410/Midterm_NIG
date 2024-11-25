@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 
 public class Album {
     private String id; // Firebase ID of the album

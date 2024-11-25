@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Favorite;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -11,6 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
+import com.tdtu.edu.vn.mygallery.LoginActivity;
+import com.tdtu.edu.vn.mygallery.MainActivity;
+import com.tdtu.edu.vn.mygallery.R;
+import com.tdtu.edu.vn.mygallery.Utilities.RecycleBinActivity;
+import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

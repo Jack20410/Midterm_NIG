@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 
 import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -10,6 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import android.widget.ImageButton;
 import android.content.Intent;
+
+import com.tdtu.edu.vn.mygallery.Image.ImagesDisplayActivity;
+import com.tdtu.edu.vn.mygallery.OnlineActivity;
+import com.tdtu.edu.vn.mygallery.R;
+
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
     private List<Album> albumList;
     private OnlineActivity onlineActivity;  // Reference to MainActivity

@@ -1,7 +1,6 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Utilities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.tdtu.edu.vn.mygallery.R;
 
 import java.io.File;
 import java.nio.file.Files;

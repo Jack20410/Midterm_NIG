@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Slideshow;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.tdtu.edu.vn.mygallery.R;
 
 import java.util.ArrayList;
 

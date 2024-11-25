@@ -1,10 +1,13 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Utilities;
 
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import android.content.Context;
+
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbum;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumDao;
 
 @Database(entities = {OfflineAlbum.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {

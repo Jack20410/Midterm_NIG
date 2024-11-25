@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Utilities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,6 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
+import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
+import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
+import com.tdtu.edu.vn.mygallery.Image.ImageData;
+import com.tdtu.edu.vn.mygallery.Image.ImageTag;
+import com.tdtu.edu.vn.mygallery.Image.ImageTagDatabase;
+import com.tdtu.edu.vn.mygallery.LoginActivity;
+import com.tdtu.edu.vn.mygallery.MainActivity;
+import com.tdtu.edu.vn.mygallery.R;
+
 import androidx.exifinterface.media.ExifInterface;
 import java.io.File;
 import java.text.ParseException;

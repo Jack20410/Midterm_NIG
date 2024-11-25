@@ -35,15 +35,15 @@
 
         <!-- Other activities -->
         <activity android:name=".LoginActivity" android:exported="true" />
-        <activity android:name=".ImagesDisplayActivity" />
+        <activity android:name=".Image.ImagesDisplayActivity" />
         <activity android:name=".OnlineActivity" />
-        <activity android:name=".RecycleBinActivity" />
-        <activity android:name=".ImageInspectActivity" />
-        <activity android:name=".OfflineAlbumActivity" />
-        <activity android:name=".OfflineAlbumInspect" />
-        <activity android:name=".SlideshowActivity" />
-        <activity android:name=".FavoriteActivity" />
-        <activity android:name=".SearchActivity"
+        <activity android:name=".Utilities.RecycleBinActivity" />
+        <activity android:name=".Image.ImageInspectActivity" />
+        <activity android:name=".Album.OfflineAlbumActivity" />
+        <activity android:name=".Album.OfflineAlbumInspect" />
+        <activity android:name=".Slideshow.SlideshowActivity" />
+        <activity android:name=".Favorite.FavoriteActivity" />
+        <activity android:name=".Utilities.SearchActivity"
             android:label="Search"
             android:exported="true" />
     </application>

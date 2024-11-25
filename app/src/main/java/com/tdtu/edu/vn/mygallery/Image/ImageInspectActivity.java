@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Image;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,6 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.tdtu.edu.vn.mygallery.Utilities.FileManager;
+import com.tdtu.edu.vn.mygallery.R;
+
 import androidx.viewpager2.widget.ViewPager2;
 import java.io.File;
 import java.util.ArrayList;

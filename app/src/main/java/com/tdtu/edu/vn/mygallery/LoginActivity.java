@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
+import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
+import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+
 import android.view.MenuItem;
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;

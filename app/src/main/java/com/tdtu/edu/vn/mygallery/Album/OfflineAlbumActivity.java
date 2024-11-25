@@ -1,20 +1,26 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
+import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
+import com.tdtu.edu.vn.mygallery.LoginActivity;
+import com.tdtu.edu.vn.mygallery.MainActivity;
+import com.tdtu.edu.vn.mygallery.R;
+import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 

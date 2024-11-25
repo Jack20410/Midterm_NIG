@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +18,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+
+import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
+import com.tdtu.edu.vn.mygallery.R;
+import com.tdtu.edu.vn.mygallery.Slideshow.SlideshowActivity;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;

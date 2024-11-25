@@ -1,10 +1,13 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Utilities;
 
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tdtu.edu.vn.mygallery.R;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

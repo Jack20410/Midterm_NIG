@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Utilities;
 
 import android.content.Context;
 import android.util.AttributeSet;

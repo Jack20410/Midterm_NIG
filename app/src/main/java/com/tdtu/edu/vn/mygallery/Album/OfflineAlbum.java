@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 

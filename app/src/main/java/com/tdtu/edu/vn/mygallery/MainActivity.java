@@ -20,14 +20,21 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
+import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
+import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
+import com.tdtu.edu.vn.mygallery.Image.ImageData;
+import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
+import com.tdtu.edu.vn.mygallery.Utilities.FileManager;
+import com.tdtu.edu.vn.mygallery.Utilities.GestureRecyclerView;
+import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import android.view.ScaleGestureDetector;
-import androidx.exifinterface.media.ExifInterface;
-import android.view.GestureDetector;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         GestureRecyclerView recyclerView = findViewById(R.id.recyclerView);
 
-// Set up ScaleGestureDetector
+        // Set up ScaleGestureDetector
         ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
@@ -72,14 +79,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-// Assign the gesture detector to the custom RecyclerView
+        // Assign the gesture detector to the custom RecyclerView
         recyclerView.setScaleGestureDetector(scaleGestureDetector);
 
 
         // Combine ScaleGestureDetector and GestureDetector
-
     }
-
 
     @Override
     protected void onResume() {
@@ -258,8 +263,6 @@ public class MainActivity extends AppCompatActivity {
         return imageList;
     }
 
-
-
     private Set<String> getRecycleBinImages() {
         Set<String> recycleBinPaths = new HashSet<>();
         File recycleBinFolder = new File(getFilesDir(), "RecycleBin");
@@ -323,14 +326,9 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-
-
     /**
      * Callback method to refresh the grid when changes occur.
      */
-
-
-
 
     private void handleZoomIn() {
         if (currentLayer == 3) {

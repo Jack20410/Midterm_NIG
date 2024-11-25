@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
+import com.tdtu.edu.vn.mygallery.R;
 
 import java.util.List;
 import java.util.concurrent.Executors;

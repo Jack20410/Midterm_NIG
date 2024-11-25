@@ -1,4 +1,4 @@
-package com.tdtu.edu.vn.mygallery;
+package com.tdtu.edu.vn.mygallery.Album;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,9 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
+import com.tdtu.edu.vn.mygallery.R;
+
 import android.widget.Toast;
 import java.io.File;
 import java.util.List;
