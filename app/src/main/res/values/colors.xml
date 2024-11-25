@@ -7,7 +7,7 @@
 
     <color name="colorPrimary">@color/purple_500</color>
 
-    <color name="activeColor">#FF5722</color> <!-- Replace with your desired active color -->
+    <color name="activeColor">#1566E0</color> <!-- Replace with your desired active color -->
     <color name="inactiveColor">#757575</color> <!-- Replace with your desired inactive color -->
 
 </resources>
