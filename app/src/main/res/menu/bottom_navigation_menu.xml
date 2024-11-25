@@ -3,25 +3,25 @@
 
     <item
         android:id="@+id/navigation_main"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/baseline_home_24"
         android:title="Main"
         app:itemIconSize="24dp"
         app:itemTextAppearanceActive="@style/TextAppearance.AppCompat.Small"
         app:itemTextAppearanceInactive="@style/TextAppearance.AppCompat.Small"/>
     <item
         android:id="@+id/navigation_offline_album"
-        android:icon="@drawable/ic_album"
-        android:title="Offline Album" />
+        android:icon="@drawable/baseline_photo_album_24"
+        android:title="Offline Album"/>
     <item
         android:id="@+id/navigation_favorite"
         android:icon="@drawable/ic_favorite"
         android:title="Favorite" />
     <item
         android:id="@+id/navigation_search"
-        android:icon="@drawable/ic_search"
-        android:title="Search" />
+        android:icon="@drawable/baseline_search_24"
+        android:title="Search"/>
     <item
         android:id="@+id/navigation_login"
-        android:icon="@drawable/ic_login"
-        android:title="Login" />
+        android:icon="@drawable/baseline_login_24"
+        android:title="Login"/>
 </menu>
