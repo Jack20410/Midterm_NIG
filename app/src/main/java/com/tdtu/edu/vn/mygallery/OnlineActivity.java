@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.tdtu.edu.vn.mygallery.Album.Album;
 import com.tdtu.edu.vn.mygallery.Album.AlbumAdapter;
+import com.tdtu.edu.vn.mygallery.Fragment.LoginFragment;
 import com.tdtu.edu.vn.mygallery.Image.ImagesAdapter;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class OnlineActivity extends AppCompatActivity {
             mAuth.signOut(); // Sign out from Firebase Auth
             Toast.makeText(OnlineActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
             // Redirect to LoginActivity
-            startActivity(new Intent(OnlineActivity.this, LoginActivity.class));
+            startActivity(new Intent(OnlineActivity.this, LoginFragment.class));
             finish(); // Close the current activity
         });
         // Initialize FirebaseDatabase instance

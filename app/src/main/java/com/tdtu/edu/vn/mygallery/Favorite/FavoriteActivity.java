@@ -28,7 +28,7 @@ public class FavoriteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite);
+        setContentView(R.layout.fragment_activity_favorite);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewFavorites);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));

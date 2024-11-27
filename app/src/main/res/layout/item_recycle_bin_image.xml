@@ -30,7 +30,7 @@
             android:layout_alignParentStart="true"
             android:layout_margin="8dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_restore" />
+            android:src="@drawable/baseline_restore_24" />
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

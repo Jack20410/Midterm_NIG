@@ -12,7 +12,7 @@
         android:text="Favorite Images"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/holo_red_dark"
+        android:textColor="#1566E0"
         android:layout_marginTop="16dp"
         android:layout_centerHorizontal="true" />
 
@@ -24,26 +24,27 @@
         android:layout_below="@id/textViewFavorite"
         android:layout_marginBottom="56dp"
         android:layout_marginTop="8dp" />
-    <Button
+
+    <ImageButton
         android:id="@+id/buttonRecycleBin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to Recycle Bin"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/baseline_delete_outline_24"
         app:layout_constraintTop_toBottomOf="@id/recyclerViewFavorites"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"/>
 
     <!-- Bottom Navigation View -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_navigation_menu"
-        app:labelVisibilityMode="labeled"
-        app:itemIconTint="@color/selector_bottom_nav"
-        app:itemTextColor="@color/selector_bottom_nav"
-        android:background="?android:attr/windowBackground" />
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottomNavigationView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        app:menu="@menu/bottom_navigation_menu"-->
+<!--        app:labelVisibilityMode="labeled"-->
+<!--        app:itemIconTint="@color/selector_bottom_nav"-->
+<!--        app:itemTextColor="@color/selector_bottom_nav"-->
+<!--        android:background="?android:attr/windowBackground" />-->
 
 </RelativeLayout>

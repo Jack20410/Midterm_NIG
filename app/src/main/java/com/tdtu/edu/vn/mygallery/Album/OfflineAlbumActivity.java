@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.tdtu.edu.vn.mygallery.Fragment.OfflineAlbumFragment;
 import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
 import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
 import com.tdtu.edu.vn.mygallery.LoginActivity;
@@ -36,10 +38,10 @@ public class OfflineAlbumActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_offline_album);
+        setContentView(R.layout.fragment_activity_offline_album);
 
         initUI();
-        setupBottomNavigationView();
+//        setupBottomNavigationView();
 
 
         new Handler().postDelayed(() -> {
@@ -80,42 +82,72 @@ public class OfflineAlbumActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("NonConstantResourceId")
-    private void setupBottomNavigationView() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+    public void initUIComponents(OfflineAlbumFragment fragment, View view) {
+        LinearLayout parentLayout = view.findViewById(R.id.linearLayout);
+        EditText albumNameInput = view.findViewById(R.id.albumName);
+        ListView albumListView = view.findViewById(R.id.albumListView);
+        Button createAlbumButton = view.findViewById(R.id.createAlbumButton);
 
-        // Ensure `bottomNavigationView` is not null
-        if (bottomNavigationView == null) {
-            Toast.makeText(this, "BottomNavigationView not found. Check your layout file.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        parentLayout.requestFocus();
+        parentLayout.setFocusableInTouchMode(true);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_offline_album:
-                    // Already in OfflineAlbumActivity
-                    return true;
-                case R.id.navigation_main:
-                    startActivity(new Intent(OfflineAlbumActivity.this, MainActivity.class));
-                    return true;
-                case R.id.navigation_favorite:
-                    startActivity(new Intent(OfflineAlbumActivity.this, FavoriteActivity.class));
-                    return true;
-                case R.id.navigation_login:
-                    startActivity(new Intent(OfflineAlbumActivity.this, LoginActivity.class));
-                    return true;
-                case R.id.navigation_search:
-                    startActivity(new Intent(OfflineAlbumActivity.this, SearchActivity.class));
-                    return true;
-                default:
-                    return false;
+        createAlbumButton.setOnClickListener(v -> {
+            String albumName = albumNameInput.getText().toString();
+            if (!albumName.isEmpty()) {
+                fragment.createAlbum(albumName); // Delegate album creation to the fragment
+            } else {
+                Toast.makeText(this, "Please enter an album name", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Set the selected item to "Offline Album"
-        bottomNavigationView.setSelectedItemId(R.id.navigation_offline_album);
+        albumListView.setOnItemClickListener((parent, clickedView, position, id) -> {
+            OfflineAlbum selectedAlbum = fragment.getAdapter().getAlbumAtPosition(position);
+            if (selectedAlbum != null && selectedAlbum.id > 0) {
+                Intent intent = new Intent(this, OfflineAlbumInspect.class);
+                intent.putExtra("albumId", selectedAlbum.id);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Invalid album data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+
+//    @SuppressLint("NonConstantResourceId")
+//    private void setupBottomNavigationView() {
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+//
+//        // Ensure `bottomNavigationView` is not null
+//        if (bottomNavigationView == null) {
+//            Toast.makeText(this, "BottomNavigationView not found. Check your layout file.", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+//            switch (item.getItemId()) {
+//                case R.id.navigation_offline_album:
+//                    // Already in OfflineAlbumActivity
+//                    return true;
+//                case R.id.navigation_main:
+//                    startActivity(new Intent(OfflineAlbumActivity.this, MainActivity.class));
+//                    return true;
+//                case R.id.navigation_favorite:
+//                    startActivity(new Intent(OfflineAlbumActivity.this, FavoriteActivity.class));
+//                    return true;
+//                case R.id.navigation_login:
+//                    startActivity(new Intent(OfflineAlbumActivity.this, LoginActivity.class));
+//                    return true;
+//                case R.id.navigation_search:
+//                    startActivity(new Intent(OfflineAlbumActivity.this, SearchActivity.class));
+//                    return true;
+//                default:
+//                    return false;
+//            }
+//        });
+//
+//        // Set the selected item to "Offline Album"
+//        bottomNavigationView.setSelectedItemId(R.id.navigation_offline_album);
+//    }
 
     private void createAlbum(String albumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -148,15 +180,19 @@ public class OfflineAlbumActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();  // Refresh the adapter
     }
 
-
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(event);
+            gestureDetector.onTouchEvent(event); // Handle gesture detection at the activity level
         }
-        return super.dispatchTouchEvent(event);
-    }
 
+        // Check if the fragment is currently active and handle touch events there
+        OfflineAlbumFragment fragment = (OfflineAlbumFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            fragment.handleTouchEvent(event); // Custom method in the fragment to process touch events
+        }
+
+        return super.dispatchTouchEvent(event); // Pass to super for default behavior
+    }
 
 }

@@ -40,9 +40,11 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_offline_album_inspect);
+        setContentView(R.layout.activity_offline_images_inspect);
+
         requestStoragePermission();
         db = AppDatabase.getInstance(this);
+
         if (db == null) {
             Log.e("OfflineAlbumInspect", "Database instance is null.");
             return;
@@ -53,6 +55,13 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             return;
         }
         albumId = getIntent().getLongExtra("albumId", -1);
+        if (albumId == -1) {
+            Toast.makeText(this, "Invalid album ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db = AppDatabase.getInstance(this);
+        albumDao = db.offlineAlbumDao();
 
         loadImages(albumId);
 
@@ -72,12 +81,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
 
         Button addPictureButton = findViewById(R.id.addPictureButton);
 
-        addPictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addPictureToAlbum();
-            }
-        });
+        addPictureButton.setOnClickListener(v -> addPictureToAlbum());
     }
 
     private void requestStoragePermission() {
@@ -104,7 +108,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         }
     }
 
-
     private void loadImages(long albumId) {
         new Thread(() -> {
             currentAlbum = albumDao.getAlbumById(albumId);
@@ -112,13 +115,11 @@ public class OfflineAlbumInspect extends AppCompatActivity {
                 if (currentAlbum == null) {
                     Toast.makeText(OfflineAlbumInspect.this, "Album not found", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d("OfflineAlbumInspect", "Loaded URIs: " + currentAlbum.imageUris);
                     displayImages();
                 }
             });
         }).start();
     }
-
 
     private void addPictureToAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -126,10 +127,10 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData(); // Get the image URI from the intent
             if (selectedImageUri != null && currentAlbum != null) {
@@ -157,24 +158,38 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         }
     }
 
-
     private String copyImageToLocalStorage(Uri imageUri) {
-        String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Unique filename for each image
-        File outputFile = new File(getFilesDir(), fileName); // Save in internal storage
+//        String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Unique filename for each image
+//        File outputFile = new File(getFilesDir(), fileName); // Save in internal storage
+//        try (InputStream inputStream = getContentResolver().openInputStream(imageUri);
+//             OutputStream outputStream = new FileOutputStream(outputFile)) {
+//            byte[] buffer = new byte[1024];
+//            int bytesRead;
+//            while ((bytesRead = inputStream.read(buffer)) != -1) {
+//                outputStream.write(buffer, 0, bytesRead);
+//            }
+//            return outputFile.getAbsolutePath(); // Return the local file path
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+        String fileName = "image_" + System.currentTimeMillis() + ".jpg";
+        File outputFile = new File(getFilesDir(), fileName);
         try (InputStream inputStream = getContentResolver().openInputStream(imageUri);
              OutputStream outputStream = new FileOutputStream(outputFile)) {
+
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-            return outputFile.getAbsolutePath(); // Return the local file path
+            Log.d("OfflineAlbumInspect", "Image copied to: " + outputFile.getAbsolutePath());
+            return outputFile.getAbsolutePath();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("OfflineAlbumInspect", "Error copying image to local storage", e);
             return null;
         }
     }
-
 
     private void updateAlbum(OfflineAlbum album) {
         new Thread(() -> {
@@ -199,13 +214,11 @@ public class OfflineAlbumInspect extends AppCompatActivity {
                     updatedUris.append(uri);
                 }
             }
-
             String newUris = updatedUris.toString();
             if (!newUris.equals(currentAlbum.imageUris)) {
                 currentAlbum.imageUris = newUris;
                 updateAlbum(currentAlbum);
             }
-
             // Initialize the adapter if it's not already initialized
             if (adapter == null) {
                 RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -215,11 +228,9 @@ public class OfflineAlbumInspect extends AppCompatActivity {
                 recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
             } else {
                 adapter.notifyDataSetChanged(); // Refresh the adapter with new data
-            }
-        } else {
-            Toast.makeText(this, "No images found in this album", Toast.LENGTH_SHORT).show();
-        }
+            }}
     }
+
     @Override
     protected void onResume() {
         super.onResume();

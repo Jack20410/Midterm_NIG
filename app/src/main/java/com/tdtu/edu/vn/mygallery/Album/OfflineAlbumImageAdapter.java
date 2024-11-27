@@ -1,5 +1,7 @@
 package com.tdtu.edu.vn.mygallery.Album;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,20 +38,20 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, parent, false);
-        return new OfflineAlbumImageAdapter.ViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, parent, false); // Use item_album
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imagePath = imagePaths.get(position);
+        Log.d("OfflineAlbumImageAdapter", "Loading image path: " + imagePath);
         // Load the image into the ImageView
         Glide.with(context)
                 .load(new File(imagePath))  // Load from the local file path
                 .placeholder(R.drawable.album_placeholder)  // Add a placeholder image
                 .into(holder.imageView);
         // Set an OnClickListener on the image view
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,13 +86,14 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
                     .create()
                     .show();
         });
-
+        Log.d("ViewHolder", "ImageView: " + holder.imageView + ", DeleteButton: " + holder.deleteButton);
     }
 
     @Override
     public int getItemCount() {
         return imagePaths.size();
     }
+
     private void removeFromAlbum(String imagePath) {
         new Thread(() -> {
             if (currentAlbum != null && currentAlbum.imageUris != null) {
@@ -113,6 +116,7 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
             }
         }).start();
     }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         ImageButton deleteButton;

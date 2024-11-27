@@ -54,11 +54,10 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.fragment_activity_search);
 
         db = ImageTagDatabase.getInstance(this); // Initialize the database
         initializeUI();
-        setupBottomNavigationView();
 
         // Check permissions and load images
         checkPermissionsAndLoadImages();
@@ -83,7 +82,6 @@ public class SearchActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.searchInput);
         searchButton = findViewById(R.id.searchButton);
         searchDateButton = findViewById(R.id.searchDateButton);
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
     }
 
     private void showDatePickerDialog() {
@@ -107,29 +105,29 @@ public class SearchActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private void setupBottomNavigationView() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_main:
-                    startActivity(new Intent(SearchActivity.this, MainActivity.class));
-                    return true;
-                case R.id.navigation_offline_album:
-                    startActivity(new Intent(SearchActivity.this, OfflineAlbumActivity.class));
-                    return true;
-                case R.id.navigation_favorite:
-                    startActivity(new Intent(SearchActivity.this, FavoriteActivity.class));
-                    return true;
-                case R.id.navigation_login:
-                    startActivity(new Intent(SearchActivity.this, LoginActivity.class));
-                    return true;
-                case R.id.navigation_search:
-                    return true; // Already in search activity
-                default:
-                    return false;
-            }
-        });
-        bottomNavigationView.setSelectedItemId(R.id.navigation_search);
-    }
+//    private void setupBottomNavigationView() {
+//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+//            switch (item.getItemId()) {
+//                case R.id.navigation_main:
+//                    startActivity(new Intent(SearchActivity.this, MainActivity.class));
+//                    return true;
+//                case R.id.navigation_offline_album:
+//                    startActivity(new Intent(SearchActivity.this, OfflineAlbumActivity.class));
+//                    return true;
+//                case R.id.navigation_favorite:
+//                    startActivity(new Intent(SearchActivity.this, FavoriteActivity.class));
+//                    return true;
+//                case R.id.navigation_login:
+//                    startActivity(new Intent(SearchActivity.this, LoginActivity.class));
+//                    return true;
+//                case R.id.navigation_search:
+//                    return true; // Already in search activity
+//                default:
+//                    return false;
+//            }
+//        });
+//        bottomNavigationView.setSelectedItemId(R.id.navigation_search);
+//    }
 
     private void checkPermissionsAndLoadImages() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -221,8 +219,6 @@ public class SearchActivity extends AppCompatActivity {
             });
         }).start();
     }
-
-
 
     private List<ImageData> filterImagesByDate(List<ImageData> images, String queryDate) {
         List<ImageData> filteredImages = new ArrayList<>();

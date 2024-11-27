@@ -10,6 +10,7 @@ import android.view.GestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,8 +33,8 @@ public class ImageInspectActivity extends AppCompatActivity {
 
     private PhotoView photoView;
     private TextView noImagesMessage;
-    private Button addToFavoritesButton;
-    private Button moveToRecycleBinButton;
+    private ImageButton addToFavoritesButton;
+    private ImageButton moveToRecycleBinButton;
     private String imagePath;
     private Context context;
     private List<String> imagePaths; // List of all images in the folder
@@ -43,7 +44,6 @@ public class ImageInspectActivity extends AppCompatActivity {
     private Map<String, String> imageTags = new HashMap<>();
 
     @Override
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +55,7 @@ public class ImageInspectActivity extends AppCompatActivity {
         noImagesMessage = findViewById(R.id.noImagesMessage);
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         moveToRecycleBinButton = findViewById(R.id.moveToRecycleBinButton);
-        Button addTagButton = findViewById(R.id.addTagButton);
+        ImageButton addTagButton = findViewById(R.id.addTagButton);
 
         addTagButton.setOnClickListener(v -> {
             String currentImagePath = imagePaths.get(currentIndex);
@@ -191,10 +191,6 @@ public class ImageInspectActivity extends AppCompatActivity {
         }).start();
     }
 
-
-
-
-
     private void loadImagesFromFolder(String currentImagePath) {
         File currentFile = new File(currentImagePath);
         File folder = currentFile.getParentFile();
@@ -261,11 +257,6 @@ public class ImageInspectActivity extends AppCompatActivity {
 
         Log.d("ImageInspectActivity", "setupViewPager called with imagePath: " + imagePath + ", currentIndex: " + currentIndex);
     }
-
-
-
-
-
 
     private void confirmAddToFavorites(String imagePath) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -345,8 +336,6 @@ public class ImageInspectActivity extends AppCompatActivity {
             Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
         }
     }
-
-
     /**
      * Removes the image from the Favorites folder if it exists there.
      *
@@ -374,11 +363,6 @@ public class ImageInspectActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
-
-
 
     private boolean showPreviousImage() {
         if (imagePaths != null && !imagePaths.isEmpty()) {
@@ -441,8 +425,6 @@ public class ImageInspectActivity extends AppCompatActivity {
         Log.d("ImageInspectActivity", "Displaying image: " + path + " | Tag: " + tag);
     }
 
-
-
     private void showNoImagesMessage() {
         if (viewPager != null) {
             viewPager.setVisibility(View.GONE); // Hide the ViewPager2 when there are no images
@@ -460,6 +442,5 @@ public class ImageInspectActivity extends AppCompatActivity {
             moveToRecycleBinButton.setEnabled(false);
         }
     }
-
 
 }

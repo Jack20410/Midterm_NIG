@@ -40,8 +40,10 @@
         <activity android:name=".Utilities.RecycleBinActivity" />
         <activity android:name=".Image.ImageInspectActivity" />
         <activity android:name=".Album.OfflineAlbumActivity" />
-        <activity android:name=".Album.OfflineAlbumInspect" />
-        <activity android:name=".Slideshow.SlideshowActivity" />
+        <activity android:name=".Album.OfflineAlbumInspect"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".Slideshow.SlideshowActivity"
+            android:parentActivityName=".Album.OfflineAlbumInspect"/>
         <activity android:name=".Favorite.FavoriteActivity" />
         <activity android:name=".Utilities.SearchActivity"
             android:label="Search"

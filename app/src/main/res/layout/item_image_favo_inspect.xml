@@ -18,10 +18,6 @@
             android:clickable="false"
             android:focusable="false" />
 
-
-
-
-
         <!-- Delete button positioned on the top right corner -->
         <ImageButton
             android:id="@+id/deleteButton"

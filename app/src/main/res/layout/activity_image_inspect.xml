@@ -34,7 +34,7 @@
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:orientation="horizontal"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,26 +42,33 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Add to Favorites Button -->
-        <Button
+        <ImageButton
             android:id="@+id/addToFavoritesButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:scaleType="center"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Add to Favorites" />
+            android:text="Add to Favorites"
+            android:background="@android:color/transparent"
+            android:src="@drawable/baseline_favorite_border_24"/>
 
         <!-- Move to Recycle Bin Button -->
-        <Button
+        <ImageButton
             android:id="@+id/moveToRecycleBinButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Move to Recycle Bin" />
-        <Button
+            android:text="Move to Recycle Bin"
+            android:background="@android:color/transparent"
+            android:src="@drawable/baseline_delete_outline_24"/>
+        <ImageButton
             android:id="@+id/addTagButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:src="@drawable/outline_edit_24"
+            android:background="@android:color/transparent"
             android:text="Add/Modify Tag"
-            android:layout_marginTop="8dp"
             android:layout_below="@id/moveToRecycleBinButton"
             android:layout_alignParentStart="true" />
 

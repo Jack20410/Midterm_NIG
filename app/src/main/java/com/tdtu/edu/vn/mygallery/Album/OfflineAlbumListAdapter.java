@@ -3,6 +3,7 @@ package com.tdtu.edu.vn.mygallery.Album;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,8 +66,13 @@ public class OfflineAlbumListAdapter extends ArrayAdapter<OfflineAlbum> {
 
     // Helper method to get the album at a specific position
     public OfflineAlbum getAlbumAtPosition(int position) {
-        return getItem(position);
+        OfflineAlbum album = getItem(position);
+        if (album == null) {
+            Log.e("OfflineAlbumListAdapter", "Album at position " + position + " is null");
+        }
+        return album;
     }
+
 
     private void showRenameDialog(OfflineAlbum album) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
