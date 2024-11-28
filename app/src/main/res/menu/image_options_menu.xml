@@ -6,5 +6,5 @@
     <item
         android:id="@+id/move_to_recycle_bin"
         android:title="Move to Recycle Bin"
-        android:icon="@drawable/trash_bin" />
+        android:icon="@drawable/baseline_delete_outline_24" />
 </menu>
