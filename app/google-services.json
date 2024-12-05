@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "487874931193",
+    "firebase_url": "https://midtermnig-default-rtdb.firebaseio.com",
+    "project_id": "midtermnig",
+    "storage_bucket": "midtermnig.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487874931193:android:7a5700eaa2ac575e06b528",
+        "android_client_info": {
+          "package_name": "com.tdtu.edu.vn.mygallery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuYLvLdb7vXrJ1BqeQ0zySFbb4OPNQ6zo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

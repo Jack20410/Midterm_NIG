@@ -5,21 +5,20 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
-import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
-import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-import android.view.MenuItem;
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private EditText emailField, passwordField;
     private Button loginButton, registerButton;
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +26,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.fragment_activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            // If already logged in, redirect to OnlineActivity
-            startActivity(new Intent(LoginActivity.this, OnlineActivity.class));
-            finish(); // Prevent back navigation to the LoginActivity
-        }
+        mDatabase = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
+                .getReference("users");
 
         emailField = findViewById(R.id.emailField);
         passwordField = findViewById(R.id.passwordField);
@@ -41,41 +36,21 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> registerUser());
-
-        setupBottomNavigationView();
     }
 
-    // Login user with Firebase Authentication
     private void loginUser() {
         String email = emailField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            emailField.setError("Email is required");
-            emailField.requestFocus();
-            return;
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Enter a valid email");
-            emailField.requestFocus();
-            return;
-        }
-
-        if (password.isEmpty()) {
-            passwordField.setError("Password is required");
-            passwordField.requestFocus();
-            return;
-        }
+        if (!validateInputs(email, password)) return;
 
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Intent intent = new Intent(LoginActivity.this, OnlineActivity.class);
-                        startActivity(intent);
-                        finish();
+                        Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        redirectToMainActivity();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -84,68 +59,51 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            emailField.setError("Email is required");
-            emailField.requestFocus();
-            return;
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Enter a valid email");
-            emailField.requestFocus();
-            return;
-        }
-
-        if (password.isEmpty()) {
-            passwordField.setError("Password is required");
-            passwordField.requestFocus();
-            return;
-        }
-
-        if (password.length() < 6) {
-            passwordField.setError("Password must be at least 6 characters");
-            passwordField.requestFocus();
-            return;
-        }
+        if (!validateInputs(email, password)) return;
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(LoginActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            String userId = user.getUid();
+                            saveUserToDatabase(userId, email);
+                        }
                     } else {
-                        Toast.makeText(LoginActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void setupBottomNavigationView() {
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_main:
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        return true;
-                    case R.id.navigation_offline_album:
-                        startActivity(new Intent(LoginActivity.this, OfflineAlbumActivity.class));
-                        return true;
-                    case R.id.navigation_favorite:
-                        startActivity(new Intent(LoginActivity.this, FavoriteActivity.class));
-                        return true;
-                    case R.id.navigation_search:
-                        startActivity(new Intent(LoginActivity.this, SearchActivity.class));
-                        return true;
-                    case R.id.navigation_login:
-                        // Already in LoginActivity
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
+    private void saveUserToDatabase(String userId, String email) {
+        User newUser = new User(userId, email);
+        mDatabase.child(userId).setValue(newUser)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "User registered successfully!", Toast.LENGTH_SHORT).show();
+                        redirectToMainActivity();
+                    } else {
+                        Toast.makeText(this, "Failed to save user data to database!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-        // Highlight the login icon correctly
-        bottomNavigationView.setSelectedItemId(R.id.navigation_login);
+    private boolean validateInputs(String email, String password) {
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailField.setError("Enter a valid email");
+            emailField.requestFocus();
+            return false;
+        }
+        if (password.isEmpty() || password.length() < 6) {
+            passwordField.setError("Password must be at least 6 characters");
+            passwordField.requestFocus();
+            return false;
+        }
+        return true;
+    }
+
+    private void redirectToMainActivity() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 }

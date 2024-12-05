@@ -9,19 +9,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.tdtu.edu.vn.mygallery.OnlineActivity;
 import com.tdtu.edu.vn.mygallery.R;
+import com.tdtu.edu.vn.mygallery.User;
 
 public class LoginFragment extends Fragment {
-
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private EditText emailField, passwordField;
     private Button loginButton, registerButton;
 
@@ -31,17 +32,17 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_activity_login, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            // Redirect to OnlineActivity if already logged in
-            redirectToOnlineActivity();
-        }
+        mDatabase = FirebaseDatabase.getInstance().getReference("users");
 
         emailField = view.findViewById(R.id.emailField);
         passwordField = view.findViewById(R.id.passwordField);
         loginButton = view.findViewById(R.id.loginButton);
         registerButton = view.findViewById(R.id.registerButton);
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            redirectToOnlineActivity();
+        }
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> registerUser());
@@ -58,10 +59,10 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
                         redirectToOnlineActivity();
                     } else {
-                        Toast.makeText(requireContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -75,44 +76,43 @@ public class LoginFragment extends Fragment {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show();
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            String userId = user.getUid();
+                            User newUser = new User(userId, email);
+
+                            mDatabase.child(userId).setValue(newUser)
+                                    .addOnCompleteListener(dbTask -> {
+                                        if (dbTask.isSuccessful()) {
+                                            Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
+                                            redirectToOnlineActivity();
+                                        } else {
+                                            Toast.makeText(getContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
                     } else {
-                        Toast.makeText(requireContext(), "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Registration failed!", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private boolean validateInputs(String email, String password) {
-        if (email.isEmpty()) {
-            emailField.setError("Email is required");
-            emailField.requestFocus();
-            return false;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailField.setError("Enter a valid email");
             emailField.requestFocus();
             return false;
         }
-
-        if (password.isEmpty()) {
-            passwordField.setError("Password is required");
-            passwordField.requestFocus();
-            return false;
-        }
-
-        if (password.length() < 6) {
+        if (password.isEmpty() || password.length() < 6) {
             passwordField.setError("Password must be at least 6 characters");
             passwordField.requestFocus();
             return false;
         }
-
         return true;
     }
 
     private void redirectToOnlineActivity() {
-        Intent intent = new Intent(requireContext(), OnlineActivity.class);
-        startActivity(intent);
-        requireActivity().finish(); // Prevent back navigation to LoginFragment
+        startActivity(new Intent(getContext(), OnlineActivity.class));
+        requireActivity().finish();
     }
 }

@@ -1,26 +1,24 @@
 plugins {
-    kotlin("jvm") version "1.9.10" // Apply the Kotlin plugin at the top level
+    kotlin("jvm") version "1.9.10" // Kotlin JVM Plugin
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
 buildscript {
     repositories {
         google()
         mavenCentral()
-        repositories {
-            maven {url = uri("https://www.jitpack.io")}
-        }
+        maven { url = uri("https://www.jitpack.io") }
     }
     dependencies {
-        classpath(libs.gradle)
-        classpath(libs.google.services)
+        classpath("com.android.tools.build:gradle:8.1.1") // Ensure the latest Gradle plugin
+        classpath ("com.google.gms:google-services:4.4.2")
     }
 }
 
 allprojects {
     repositories {
         google()
-
         mavenCentral()
-        maven {url = uri("https://www.jitpack.io")}
+        maven { url = uri("https://www.jitpack.io") }
     }
 }
