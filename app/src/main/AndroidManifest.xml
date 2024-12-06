@@ -35,6 +35,7 @@
 
         <!-- Other activities -->
         <activity android:name=".LoginActivity" android:exported="true" />
+        <activity android:name=".RegisterActivity" android:exported="true" />
         <activity android:name=".Image.ImagesDisplayActivity" />
         <activity android:name=".OnlineActivity" />
         <activity android:name=".Utilities.RecycleBinActivity" />
