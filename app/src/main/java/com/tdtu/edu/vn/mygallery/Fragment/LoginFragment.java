@@ -18,7 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.tdtu.edu.vn.mygallery.OnlineActivity;
 import com.tdtu.edu.vn.mygallery.R;
-import com.tdtu.edu.vn.mygallery.User;
+import com.tdtu.edu.vn.mygallery.RegisterActivity;
 
 public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
@@ -39,13 +39,20 @@ public class LoginFragment extends Fragment {
         loginButton = view.findViewById(R.id.loginButton);
         registerButton = view.findViewById(R.id.registerButton);
 
+        // Check if the user is already logged in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             redirectToOnlineActivity();
         }
 
+        // Login button logic
         loginButton.setOnClickListener(v -> loginUser());
-        registerButton.setOnClickListener(v -> registerUser());
+
+        // Navigate to RegisterActivity
+        registerButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), RegisterActivity.class);
+            startActivity(intent);
+        });
 
         return view;
     }
@@ -59,40 +66,10 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                        // Navigate to OnlineActivity
                         redirectToOnlineActivity();
                     } else {
                         Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void registerUser() {
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
-
-        if (!validateInputs(email, password)) return;
-
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            String userId = user.getUid();
-                            User newUser = new User(userId, email);
-
-                            mDatabase.child(userId).setValue(newUser)
-                                    .addOnCompleteListener(dbTask -> {
-                                        if (dbTask.isSuccessful()) {
-                                            Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
-                                            redirectToOnlineActivity();
-                                        } else {
-                                            Toast.makeText(getContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "Registration failed!", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -112,7 +89,9 @@ public class LoginFragment extends Fragment {
     }
 
     private void redirectToOnlineActivity() {
-        startActivity(new Intent(getContext(), OnlineActivity.class));
-        requireActivity().finish();
+        // Redirect to OnlineActivity
+        Intent intent = new Intent(requireContext(), OnlineActivity.class);
+        startActivity(intent);
+        requireActivity().finish(); // Close LoginFragment to prevent going back
     }
 }
