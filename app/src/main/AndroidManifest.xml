@@ -8,10 +8,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -43,18 +43,32 @@
         <activity android:name=".Utilities.RecycleBinActivity" />
         <activity android:name=".Image.ImageInspectActivity" />
         <activity android:name=".Album.OfflineAlbumActivity" />
-        <activity android:name=".Album.OfflineAlbumInspect"
+        <activity
+            android:name=".Album.OfflineAlbumInspect"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".Slideshow.SlideshowActivity"
+        <activity
+            android:name=".Slideshow.SlideshowActivity"
             android:parentActivityName=".Album.OfflineAlbumInspect" />
         <activity android:name=".Favorite.FavoriteActivity" />
-        <activity android:name=".Utilities.SearchActivity"
+        <activity
+            android:name=".Utilities.SearchActivity"
             android:label="Search"
             android:exported="true" />
+        <activity android:name=".PhotoLocationActivity" android:exported="true" />
 
-        <!-- New activity for displaying photo location -->
-        <activity android:name=".PhotoLocationActivity"
-            android:exported="true" />
+        <!-- NotificationReceiver -->
+        <receiver
+            android:name=".Notification.NotificationReceiver"
+            android:exported="false" />
+
+        <!-- BootCompletedReceiver -->
+        <receiver
+            android:name=".Notification.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
-
 </manifest>
