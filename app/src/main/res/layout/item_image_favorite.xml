@@ -6,20 +6,31 @@
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp"
     app:cardUseCompatPadding="true"
-    android:layout_margin="8dp"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:layout_margin="8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- ImageView for displaying the image -->
+        <!-- Main Image -->
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:clickable="false"
-            android:focusable="false" />
+            android:contentDescription="@string/image_content_desc" />
+
+        <!-- Location Button -->
+        <ImageButton
+            android:id="@+id/locationButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_mylocation"
+            app:tint="@android:color/white"
+            android:contentDescription="@string/location_button_desc" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

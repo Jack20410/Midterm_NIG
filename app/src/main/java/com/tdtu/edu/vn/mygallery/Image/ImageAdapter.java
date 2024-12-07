@@ -1,35 +1,36 @@
 package com.tdtu.edu.vn.mygallery.Image;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
-import com.tdtu.edu.vn.mygallery.Utilities.FileManager;
 import com.tdtu.edu.vn.mygallery.R;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private List<String> imagePaths;
-    private Context context;
+    private final List<String> imagePaths;
+    private final Context context;
+    private final OnImageClickListener imageClickListener;
+    private final OnLocationClickListener locationClickListener;
 
-    public ImageAdapter(List<String> imagePaths, Context context) {
+    // Constructor with image and location click listeners
+    public ImageAdapter(List<String> imagePaths, Context context, OnImageClickListener imageClickListener, OnLocationClickListener locationClickListener) {
         this.imagePaths = imagePaths;
         this.context = context;
+        this.imageClickListener = imageClickListener;
+        this.locationClickListener = locationClickListener;
     }
 
     @NonNull
@@ -42,48 +43,40 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imagePath = imagePaths.get(position);
-        Log.d("ImageAdapter", "Binding image: " + imagePath);
 
         File imageFile = new File(imagePath);
         if (imageFile.exists()) {
-            Glide.with(context)
-                    .load(imageFile)
-                    .placeholder(R.drawable.album_placeholder) // Add a placeholder image
-                    .error(R.drawable.three_button) // Add an error image
-                    .into(holder.imageView);
+            try {
+                Glide.with(context)
+                        .load(imageFile)
+                        .placeholder(R.drawable.album_placeholder)
+                        .error(android.R.drawable.ic_menu_report_image)
+                        .into(holder.imageView);
+            } catch (Exception e) {
+                Log.e("ImageAdapter", "Error loading image: " + imagePath, e);
+                Toast.makeText(context, "Error loading image", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Log.e("ImageAdapter", "Image file not found: " + imagePath);
+            Log.e("ImageAdapter", "Image file not found at position " + position + ": " + imagePath);
+            Toast.makeText(context, "Image file not found", Toast.LENGTH_SHORT).show();
         }
 
-        // Navigate to ImageInspectActivity when an image is clicked
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ImageInspectActivity.class);
-            intent.putExtra("IMAGE_PATH", imagePath); // Pass the current image path
-            intent.putStringArrayListExtra("ALL_IMAGES", new ArrayList<>(imagePaths)); // Pass all images
-            context.startActivity(intent);
+        // Set image click listener
+        holder.imageView.setOnClickListener(v -> {
+            if (imageClickListener != null) {
+                imageClickListener.onImageClicked(imagePath);
+            } else {
+                Log.w("ImageAdapter", "No ImageClickListener defined for position " + position);
+            }
         });
 
-        // Show a PopupMenu when the user long-presses the image
-        holder.itemView.setOnLongClickListener(v -> {
-            PopupMenu popupMenu = new PopupMenu(context, holder.itemView);
-            MenuInflater inflater = popupMenu.getMenuInflater();
-            inflater.inflate(R.menu.image_options_menu, popupMenu.getMenu());
-
-            popupMenu.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case R.id.add_to_favorites:
-                        confirmAddToFavorites(imagePath);
-                        return true;
-                    case R.id.move_to_recycle_bin:
-                        confirmMoveToRecycleBin(imagePath);
-                        return true;
-                    default:
-                        return false;
-                }
-            });
-
-            popupMenu.show();
-            return true;
+        // Set location button click listener
+        holder.locationButton.setOnClickListener(v -> {
+            if (locationClickListener != null) {
+                locationClickListener.onLocationIconClicked(imagePath);
+            } else {
+                Log.w("ImageAdapter", "No LocationClickListener defined for position " + position);
+            }
         });
     }
 
@@ -92,73 +85,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         return imagePaths.size();
     }
 
-
-
-    private void confirmMoveToRecycleBin(String imagePath) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Move to Recycle Bin")
-                .setMessage("Are you sure you want to move this image to the Recycle Bin?")
-                .setPositiveButton("Yes", (dialog, which) -> moveToRecycleBin(imagePath))
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show();
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        Glide.with(context).clear(holder.imageView);
+        super.onViewRecycled(holder);
     }
-    private void confirmAddToFavorites(String imagePath) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Add to Favorites")
-                .setMessage("Do you want to add this image to Favorites?")
-                .setPositiveButton("Yes", (dialog, which) -> addImageToFavorites(imagePath))
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show();
-    }
-    /**
-     * Move image to Recycle Bin and update the list
-     */
-    public void addImageToFavorites(String imagePath) {
-        File sourceFile = new File(imagePath);
-        File favoritesFolder = FileManager.getFavoritesFolder(context);
-
-        if (sourceFile.exists()) {
-            boolean copied = FileManager.copyFile(sourceFile, favoritesFolder);
-            if (copied) {
-                Log.d("Favorites", "File added to Favorites: " + imagePath);
-                Toast.makeText(context, "Image added to Favorites", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Failed to add image to Favorites", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void moveToRecycleBin(String imagePath) {
-        File sourceFile = new File(imagePath);
-        File recycleBinFolder = FileManager.getRecycleBinFolder(context);
-
-        if (sourceFile.exists()) {
-            boolean moved = FileManager.moveFile(sourceFile, recycleBinFolder);
-            if (moved) {
-                Log.d("RecycleBin", "File moved to Recycle Bin: " + imagePath);
-                Toast.makeText(context, "Image moved to Recycle Bin", Toast.LENGTH_SHORT).show();
-                imagePaths.remove(imagePath);
-                notifyDataSetChanged(); // Refresh the RecyclerView
-            } else {
-                Toast.makeText(context, "Failed to move image to Recycle Bin", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(context, "File does not exist", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        ImageButton locationButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
+            locationButton = itemView.findViewById(R.id.locationButton);
         }
+    }
+
+    // Interface for image click handling
+    public interface OnImageClickListener {
+        void onImageClicked(String imagePath);
+    }
+
+    // Interface for location icon click handling
+    public interface OnLocationClickListener {
+        void onLocationIconClicked(String imagePath);
     }
 }

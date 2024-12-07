@@ -1,7 +1,8 @@
 package com.tdtu.edu.vn.mygallery.Album;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
@@ -13,15 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.tdtu.edu.vn.mygallery.Fragment.OfflineAlbumFragment;
-import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
-import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
-import com.tdtu.edu.vn.mygallery.LoginActivity;
-import com.tdtu.edu.vn.mygallery.MainActivity;
+import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
 import com.tdtu.edu.vn.mygallery.R;
-import com.tdtu.edu.vn.mygallery.Utilities.SearchActivity;
+import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -35,14 +36,19 @@ public class OfflineAlbumActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
     private BottomNavigationView bottomNavigationView;
 
+    private static final int PERMISSION_REQUEST_CODE = 100;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_activity_offline_album);
 
-        initUI();
-//        setupBottomNavigationView();
+        // Check permissions
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
 
+        initUI();
 
         new Handler().postDelayed(() -> {
             Executors.newSingleThreadExecutor().execute(() -> {
@@ -50,6 +56,33 @@ public class OfflineAlbumActivity extends AppCompatActivity {
                 loadAlbums();  // Load albums once the DB is ready
             });
         }, 100);
+    }
+
+    private boolean checkPermissions() {
+        int storagePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        return storagePermission == PackageManager.PERMISSION_GRANTED &&
+                locationPermission == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults); // Add this line
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permissions granted!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permissions denied! App may not work correctly.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void initUI() {
@@ -76,78 +109,24 @@ public class OfflineAlbumActivity extends AppCompatActivity {
 
         albumListView.setOnItemClickListener((parent, view, position, id) -> {
             OfflineAlbum selectedAlbum = adapter.getAlbumAtPosition(position);
-            Intent intent = new Intent(OfflineAlbumActivity.this, OfflineAlbumInspect.class);
-            intent.putExtra("albumId", selectedAlbum.id);
-            startActivity(intent);
-        });
-    }
-
-    public void initUIComponents(OfflineAlbumFragment fragment, View view) {
-        LinearLayout parentLayout = view.findViewById(R.id.linearLayout);
-        EditText albumNameInput = view.findViewById(R.id.albumName);
-        ListView albumListView = view.findViewById(R.id.albumListView);
-        Button createAlbumButton = view.findViewById(R.id.createAlbumButton);
-
-        parentLayout.requestFocus();
-        parentLayout.setFocusableInTouchMode(true);
-
-        createAlbumButton.setOnClickListener(v -> {
-            String albumName = albumNameInput.getText().toString();
-            if (!albumName.isEmpty()) {
-                fragment.createAlbum(albumName); // Delegate album creation to the fragment
-            } else {
-                Toast.makeText(this, "Please enter an album name", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        albumListView.setOnItemClickListener((parent, clickedView, position, id) -> {
-            OfflineAlbum selectedAlbum = fragment.getAdapter().getAlbumAtPosition(position);
-            if (selectedAlbum != null && selectedAlbum.id > 0) {
-                Intent intent = new Intent(this, OfflineAlbumInspect.class);
-                intent.putExtra("albumId", selectedAlbum.id);
-                startActivity(intent);
+            if (selectedAlbum != null) {
+                if (selectedAlbum.hasLocation()) {
+                    // Navigate to PhotoLocationActivity if the album has location data
+                    Intent mapIntent = new Intent(this, PhotoLocationActivity.class);
+                    mapIntent.putExtra("latitude", selectedAlbum.getLatitude());
+                    mapIntent.putExtra("longitude", selectedAlbum.getLongitude());
+                    startActivity(mapIntent);
+                } else {
+                    // Navigate to album inspection activity
+                    Intent intent = new Intent(OfflineAlbumActivity.this, OfflineAlbumInspect.class);
+                    intent.putExtra("albumId", selectedAlbum.id);
+                    startActivity(intent);
+                }
             } else {
                 Toast.makeText(this, "Invalid album data", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
-//    @SuppressLint("NonConstantResourceId")
-//    private void setupBottomNavigationView() {
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-//
-//        // Ensure `bottomNavigationView` is not null
-//        if (bottomNavigationView == null) {
-//            Toast.makeText(this, "BottomNavigationView not found. Check your layout file.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-//            switch (item.getItemId()) {
-//                case R.id.navigation_offline_album:
-//                    // Already in OfflineAlbumActivity
-//                    return true;
-//                case R.id.navigation_main:
-//                    startActivity(new Intent(OfflineAlbumActivity.this, MainActivity.class));
-//                    return true;
-//                case R.id.navigation_favorite:
-//                    startActivity(new Intent(OfflineAlbumActivity.this, FavoriteActivity.class));
-//                    return true;
-//                case R.id.navigation_login:
-//                    startActivity(new Intent(OfflineAlbumActivity.this, LoginActivity.class));
-//                    return true;
-//                case R.id.navigation_search:
-//                    startActivity(new Intent(OfflineAlbumActivity.this, SearchActivity.class));
-//                    return true;
-//                default:
-//                    return false;
-//            }
-//        });
-//
-//        // Set the selected item to "Offline Album"
-//        bottomNavigationView.setSelectedItemId(R.id.navigation_offline_album);
-//    }
 
     private void createAlbum(String albumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -185,14 +164,6 @@ public class OfflineAlbumActivity extends AppCompatActivity {
         if (gestureDetector != null) {
             gestureDetector.onTouchEvent(event); // Handle gesture detection at the activity level
         }
-
-        // Check if the fragment is currently active and handle touch events there
-        OfflineAlbumFragment fragment = (OfflineAlbumFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (fragment != null) {
-            fragment.handleTouchEvent(event); // Custom method in the fragment to process touch events
-        }
-
         return super.dispatchTouchEvent(event); // Pass to super for default behavior
     }
-
 }

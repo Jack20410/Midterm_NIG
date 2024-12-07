@@ -44,11 +44,17 @@ dependencies {
     implementation("com.google.firebase:firebase-database:21.0.0")
     implementation("com.google.firebase:firebase-analytics")
 
+    // Google Maps SDK for Android
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
+
     // AndroidX and Material Design dependencies
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.cardview:cardview:1.0.0")
+
+    // AndroidX ExifInterface for handling EXIF metadata
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
 
     // PhotoView and Glide for image handling
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
