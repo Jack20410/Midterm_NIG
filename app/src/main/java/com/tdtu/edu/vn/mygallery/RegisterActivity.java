@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -69,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void navigateToLogin() {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
         finish();
     }
 }

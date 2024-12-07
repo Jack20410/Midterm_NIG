@@ -100,9 +100,9 @@
                 android:layout_marginTop="18.7dp"
                 android:layout_marginRight="62dp"
                 android:background="@drawable/blue_fill__rounded_color"
-                android:text="Log In"
                 android:textColor="#ffffff"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:text="Log In"/>
 
             <Button
                 android:id="@+id/registerButton"
