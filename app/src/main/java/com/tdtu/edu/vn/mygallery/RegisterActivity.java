@@ -15,7 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText usernameField, emailField, passwordField;
-    private Button registerButton;
+    private Button registerButton, backToLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +28,10 @@ public class RegisterActivity extends AppCompatActivity {
         emailField = findViewById(R.id.emailField);
         passwordField = findViewById(R.id.passwordField);
         registerButton = findViewById(R.id.registerButton);
+        backToLoginButton = findViewById(R.id.backToLoginButton);
 
         registerButton.setOnClickListener(v -> registerUser());
+        backToLoginButton.setOnClickListener(v -> navigateToLogin());
     }
 
     private void registerUser() {
@@ -65,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
                 usersRef.child(uid).setValue(user).addOnCompleteListener(dbTask -> {
                     if (dbTask.isSuccessful()) {
                         Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_SHORT).show();
-                        redirectToLogin(); // Redirect to LoginActivity
+                        navigateToLogin(); // Redirect to LoginActivity
                     } else {
                         Toast.makeText(RegisterActivity.this, "Failed to save user data.", Toast.LENGTH_SHORT).show();
                     }
@@ -76,10 +78,11 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void redirectToLogin() {
-        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear previous activities
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("select_login", true);
         startActivity(intent);
-        finish(); // Finish the current activity
+        finish();
     }
+
 }
