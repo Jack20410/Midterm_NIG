@@ -26,12 +26,21 @@ android:layout_height="wrap_content">
                 android:src="@drawable/logo" />
         </FrameLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="20sp"
+            android:text="Create new account"/>
+
         <!-- Input fields for email -->
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="62dp"
-            android:layout_marginTop="36.7dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="62dp"
             android:background="@drawable/blue_border_rounded_cornwe">
 

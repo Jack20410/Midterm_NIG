@@ -27,9 +27,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Load the default fragment (MainFragment)
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new MainFragment())
-                    .commit();
+            // Check if the "select_login" extra is passed
+            boolean selectLogin = getIntent().getBooleanExtra("select_login", false);
+            if (selectLogin) {
+                bottomNavigationView.setSelectedItemId(R.id.navigation_login);
+            } else {
+                // Default to MainFragment
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new MainFragment())
+                        .commit();
+            }
         }
     }
 
