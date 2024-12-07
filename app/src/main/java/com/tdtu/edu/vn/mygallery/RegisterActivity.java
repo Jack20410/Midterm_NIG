@@ -12,6 +12,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText usernameField, emailField, passwordField;
@@ -32,6 +35,21 @@ public class RegisterActivity extends AppCompatActivity {
 
         registerButton.setOnClickListener(v -> registerUser());
         backToLoginButton.setOnClickListener(v -> navigateToLogin());
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = digest.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void registerUser() {
@@ -57,13 +75,15 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        String hashedPassword = hashPassword(password);
+
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
                 .getReference("users");
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String uid = mAuth.getCurrentUser().getUid();
-                User user = new User(username,email,password); // Create a User object with both username and email
+                User user = new User(username, email, hashedPassword); // Create a User object with both username and email
                 usersRef.child(uid).setValue(user).addOnCompleteListener(dbTask -> {
                     if (dbTask.isSuccessful()) {
                         Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_SHORT).show();
