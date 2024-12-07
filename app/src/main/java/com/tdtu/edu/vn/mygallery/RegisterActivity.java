@@ -6,20 +6,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText emailField, passwordField;
-    private Button registerButton, backToLoginButton;
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private EditText usernameField, emailField, passwordField;
+    private Button registerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,52 +23,63 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
-                .getReference("users");
 
+        usernameField = findViewById(R.id.usernameField);
         emailField = findViewById(R.id.emailField);
         passwordField = findViewById(R.id.passwordField);
         registerButton = findViewById(R.id.registerButton);
-        backToLoginButton = findViewById(R.id.backToLoginButton);
 
         registerButton.setOnClickListener(v -> registerUser());
-        backToLoginButton.setOnClickListener(v -> navigateToLogin());
     }
 
     private void registerUser() {
+        String username = usernameField.getText().toString().trim();
         String email = emailField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
-        if (email.isEmpty() || password.isEmpty() || password.length() < 6) {
-            Toast.makeText(this, "Enter valid email and password (min 6 chars)", Toast.LENGTH_SHORT).show();
+        if (username.isEmpty()) {
+            usernameField.setError("Username is required");
+            usernameField.requestFocus();
             return;
         }
 
+        if (email.isEmpty()) {
+            emailField.setError("Email is required");
+            emailField.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            passwordField.setError("Password is required");
+            passwordField.requestFocus();
+            return;
+        }
+
+        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
+                .getReference("users");
+
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    String userId = user.getUid();
-                    User newUser = new User(userId, email);
-                    mDatabase.child(userId).setValue(newUser).addOnCompleteListener(dbTask -> {
-                        if (dbTask.isSuccessful()) {
-                            Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                            navigateToLogin(); // Redirect to LoginActivity
-                        } else {
-                            Toast.makeText(this, "Failed to save user data!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+                String uid = mAuth.getCurrentUser().getUid();
+                User user = new User(username,email,password); // Create a User object with both username and email
+                usersRef.child(uid).setValue(user).addOnCompleteListener(dbTask -> {
+                    if (dbTask.isSuccessful()) {
+                        Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_SHORT).show();
+                        redirectToLogin(); // Redirect to LoginActivity
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Failed to save user data.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             } else {
-                Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void navigateToLogin() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("select_login", true);
+    private void redirectToLogin() {
+        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear previous activities
         startActivity(intent);
-        finish();
+        finish(); // Finish the current activity
     }
 }
