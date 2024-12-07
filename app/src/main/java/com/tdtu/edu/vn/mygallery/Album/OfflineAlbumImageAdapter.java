@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
-import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
+import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
 import com.tdtu.edu.vn.mygallery.R;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
 
     private List<String> imagePaths;
     private Context context;
-    private OfflineAlbumDao     albumDao;
+    private OfflineAlbumDao albumDao;
     private OfflineAlbum currentAlbum;
 
     public OfflineAlbumImageAdapter(List<String> imagePaths, Context context, OfflineAlbumDao albumDao, OfflineAlbum currentAlbum) {
@@ -59,32 +59,16 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
                     .centerCrop()    // Ensure the image fits properly
                     .into(holder.imageView);
 
-            // Check if the photo has location data
-            LatLng location = getPhotoLocation(imagePath);
-            if (location != null) {
-                holder.locationIcon.setVisibility(View.VISIBLE); // Show location icon
-            } else {
-                holder.locationIcon.setVisibility(View.GONE); // Hide location icon
-            }
-
-            // Set an OnClickListener on the image view
+            // Set an OnClickListener to view the image
             holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(context, PhotoLocationActivity.class);
-                intent.putExtra("photoPath", imagePath);
-
-                if (location != null) {
-                    intent.putExtra("latitude", location.latitude);
-                    intent.putExtra("longitude", location.longitude);
-                } else {
-                    Toast.makeText(context, "No location data available for this photo", Toast.LENGTH_SHORT).show();
-                }
-
+                Intent intent = new Intent(context, ImageInspectActivity.class);
+                intent.putExtra("IMAGE_PATH", imagePath);
                 context.startActivity(intent);
             });
+
         } else {
             Log.e("OfflineAlbumImageAdapter", "Image file not found: " + imagePath);
             holder.imageView.setImageResource(R.drawable.album_placeholder);
-            holder.locationIcon.setVisibility(View.GONE); // Hide location icon for invalid images
         }
 
         // Handle delete button click
@@ -110,20 +94,6 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
         return (imagePaths != null) ? imagePaths.size() : 0;
     }
 
-    // Extract location data from EXIF metadata
-    private LatLng getPhotoLocation(String imagePath) {
-        try {
-            ExifInterface exif = new ExifInterface(imagePath);
-            float[] latLong = new float[2];
-            if (exif.getLatLong(latLong)) {
-                return new LatLng(latLong[0], latLong[1]);
-            }
-        } catch (Exception e) {
-            Log.e("OfflineAlbumImageAdapter", "Error reading EXIF data: " + e.getMessage());
-        }
-        return null;
-    }
-
     private synchronized void removeFromAlbum(String imagePath) {
         new Thread(() -> {
             if (currentAlbum != null && currentAlbum.imageUris != null) {
@@ -139,13 +109,11 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         ImageButton deleteButton;
-        ImageView locationIcon; // Add an optional icon for location metadata
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
             deleteButton = itemView.findViewById(R.id.deleteButton);
-            locationIcon = itemView.findViewById(R.id.locationIcon); // Add this to your item_image.xml
         }
     }
 }
