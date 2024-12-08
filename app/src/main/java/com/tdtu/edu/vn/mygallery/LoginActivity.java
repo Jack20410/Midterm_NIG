@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private EditText emailField, passwordField;
+    private EditText usernameField, emailField, passwordField;
     private Button loginButton, registerButton;
 
     @Override
