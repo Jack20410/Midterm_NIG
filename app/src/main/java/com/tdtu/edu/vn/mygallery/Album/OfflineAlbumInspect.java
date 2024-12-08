@@ -57,7 +57,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         albumId = getIntent().getLongExtra("albumId", -1);
         if (albumId == -1) {
             Toast.makeText(this, "Invalid album ID", Toast.LENGTH_SHORT).show();
-            return;
+            finish();
         }
 
         db = AppDatabase.getInstance(this);
@@ -80,15 +80,13 @@ public class OfflineAlbumInspect extends AppCompatActivity {
 
 
         Button addPictureButton = findViewById(R.id.addPictureButton);
-
         addPictureButton.setOnClickListener(v -> addPictureToAlbum());
     }
 
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
         } else {
             // Permission is already granted
             loadImages(albumId); // Load images if permission is already granted
@@ -98,7 +96,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults); // Important: Call the superclass method
-
         if (requestCode == REQUEST_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadImages(albumId);  // Load images if permission is granted
@@ -106,6 +103,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
             }
         }
+        Log.d("OfflineAlbumInspect", "Permission granted: " + (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED));
     }
 
     private void loadImages(long albumId) {
@@ -122,9 +120,16 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     }
 
     private void addPictureToAlbum() {
+        Log.d("OfflineAlbumInspect", "Attempting to open image picker");
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
-        startActivityForResult(intent, 1);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            Log.d("OfflineAlbumInspect", "Starting activity for result");
+            startActivityForResult(intent, 1);
+        } else {
+            Log.e("OfflineAlbumInspect", "No app available to handle image picker intent");
+            Toast.makeText(this, "No app available to select images", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -223,7 +228,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             if (adapter == null) {
                 RecyclerView recyclerView = findViewById(R.id.recyclerView);
                 adapter = new OfflineAlbumImageAdapter(imageList, this, albumDao, currentAlbum);
-
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
             } else {

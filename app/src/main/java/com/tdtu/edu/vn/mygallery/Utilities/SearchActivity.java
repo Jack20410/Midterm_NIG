@@ -14,13 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
+//import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
 import com.tdtu.edu.vn.mygallery.Favorite.FavoriteActivity;
 import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
 import com.tdtu.edu.vn.mygallery.Image.ImageData;
 import com.tdtu.edu.vn.mygallery.Image.ImageTag;
 import com.tdtu.edu.vn.mygallery.Image.ImageTagDatabase;
-import com.tdtu.edu.vn.mygallery.LoginActivity;
 import com.tdtu.edu.vn.mygallery.MainActivity;
 import com.tdtu.edu.vn.mygallery.R;
 

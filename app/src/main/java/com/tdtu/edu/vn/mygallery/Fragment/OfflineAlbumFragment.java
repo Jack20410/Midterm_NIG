@@ -2,8 +2,6 @@ package com.tdtu.edu.vn.mygallery.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,16 +9,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbum;
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumInspect;
-import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumListAdapter;
+import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumRecyclerAdapter;
 import com.tdtu.edu.vn.mygallery.R;
 import com.tdtu.edu.vn.mygallery.Utilities.AppDatabase;
 
@@ -30,20 +29,15 @@ import java.util.concurrent.Executors;
 public class OfflineAlbumFragment extends Fragment {
 
     private AppDatabase db;
-    private ListView albumListView;
+    private RecyclerView albumRecyclerView;
     private EditText albumNameInput;
-    private OfflineAlbumListAdapter adapter;
-    private GestureDetector gestureDetector;
+    private OfflineAlbumRecyclerAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_activity_offline_album, container, false);
 
-        // Initialize the UI components
         initUI(view);
-
-        // Initialize database and load albums
         Executors.newSingleThreadExecutor().execute(() -> {
             db = AppDatabase.getInstance(requireContext());
             loadAlbums();
@@ -55,13 +49,12 @@ public class OfflineAlbumFragment extends Fragment {
     private void initUI(View view) {
         LinearLayout parentLayout = view.findViewById(R.id.linearLayout);
         albumNameInput = view.findViewById(R.id.albumName);
-        albumListView = view.findViewById(R.id.albumListView);
+        albumRecyclerView = view.findViewById(R.id.albumRecyclerView);
         Button createAlbumButton = view.findViewById(R.id.createAlbumButton);
 
         parentLayout.requestFocus();
         parentLayout.setFocusableInTouchMode(true);
 
-        // Create Album Button
         createAlbumButton.setOnClickListener(v -> {
             String albumName = albumNameInput.getText().toString();
             if (!albumName.isEmpty()) {
@@ -71,20 +64,10 @@ public class OfflineAlbumFragment extends Fragment {
             }
         });
 
-        // Album item click listener
-        albumListView.setOnItemClickListener((parent, clickedView, position, id) -> {
-            OfflineAlbum selectedAlbum = adapter.getAlbumAtPosition(position);
-            if (selectedAlbum != null && selectedAlbum.id > 0) {
-                Intent intent = new Intent(requireContext(), OfflineAlbumInspect.class);
-                intent.putExtra("albumId", selectedAlbum.id);
-                startActivity(intent);
-            } else {
-                Toast.makeText(requireContext(), "Invalid album data", Toast.LENGTH_SHORT).show();
-            }
-        });
+        albumRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columns
     }
 
-    public void createAlbum(String albumName) {
+    private void createAlbum(String albumName) {
         Executors.newSingleThreadExecutor().execute(() -> {
             OfflineAlbum album = new OfflineAlbum(albumName);
             long newRowId = db.offlineAlbumDao().insert(album);
@@ -103,14 +86,23 @@ public class OfflineAlbumFragment extends Fragment {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<OfflineAlbum> albums = db.offlineAlbumDao().getAllAlbums();
             requireActivity().runOnUiThread(() -> {
-                adapter = new OfflineAlbumListAdapter(requireContext(), albums, db);
-                albumListView.setAdapter(adapter);
+                if (adapter == null) {
+                    // Provide the database instance as a parameter
+                    adapter = new OfflineAlbumRecyclerAdapter(albums, requireContext(), db, album -> {
+                        if (album != null && album.id > 0) {
+                            Intent intent = new Intent(requireContext(), OfflineAlbumInspect.class);
+                            intent.putExtra("albumId", album.id);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(requireContext(), "Invalid album data", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    albumRecyclerView.setAdapter(adapter);
+                } else {
+                    adapter.updateAlbumList(albums);
+                }
             });
         });
-    }
-
-    public OfflineAlbumListAdapter getAdapter() {
-        return adapter;
     }
 
     @Override
@@ -119,14 +111,6 @@ public class OfflineAlbumFragment extends Fragment {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+        loadAlbums();
     }
-
-
-
-public void handleTouchEvent(MotionEvent event) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(event); // Process gestures in the fragment
-        }
-    }
-
 }

@@ -1,48 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:elevation="4dp"
-    android:clickable="true"
-    android:focusable="true">      <!-- Make CardView focusable and Clickable -->
+    app:cardCornerRadius="8dp">
 
-        <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@drawable/border" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-                <TextView
-                    android:id="@+id/albumName"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Album Name"
-                    android:textColorHint="#d3d3d3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="18sp"
-                    android:textColor="@android:color/black" />
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/renameButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="36dp"
-                    android:contentDescription="Rename"
-                    android:src="@android:drawable/ic_menu_info_details"
-                    android:background="@android:color/transparent"/>
+                        <TextView
+                            android:id="@+id/albumName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="6"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textStyle="bold"
+                            android:hint="Album Name"
+                            android:textColor="@android:color/black"
+                            android:textSize="19sp" />
 
-                <ImageButton
-                    android:id="@+id/deleteButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Delete"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                        <ImageButton
+                            android:id="@+id/renameButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Rename"
+                            android:src="@android:drawable/ic_menu_info_details" />
 
-        </RelativeLayout>
-</LinearLayout>
+                        <ImageButton
+                            android:id="@+id/deleteButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Delete"
+                            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/albumImage"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:contentDescription="Album Image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/album_placeholder" />
+
+
+        </LinearLayout>
+</androidx.cardview.widget.CardView>

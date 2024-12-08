@@ -6,13 +6,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageButton;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumActivity;
-import com.tdtu.edu.vn.mygallery.LoginActivity;
 import com.tdtu.edu.vn.mygallery.MainActivity;
 import com.tdtu.edu.vn.mygallery.R;
 import com.tdtu.edu.vn.mygallery.Utilities.RecycleBinActivity;
@@ -39,11 +38,10 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         setupRecycleBinButton(); // Set up the Recycle Bin button
-        setupBottomNavigationView(); // Set up bottom navigation
     }
 
     private void setupRecycleBinButton() {
-        Button buttonRecycleBin = findViewById(R.id.buttonRecycleBin);
+        ImageButton buttonRecycleBin = findViewById(R.id.buttonRecycleBin);
         buttonRecycleBin.setOnClickListener(v -> {
             Intent intent = new Intent(FavoriteActivity.this, RecycleBinActivity.class);
             startActivity(intent);
@@ -74,38 +72,38 @@ public class FavoriteActivity extends AppCompatActivity {
         Log.d("FavoriteImages", "Total favorite images loaded: " + favoriteImages.size());
     }
 
-    private void setupBottomNavigationView() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                return switch (item.getItemId()) {
-                    case R.id.navigation_main -> {
-                        startActivity(new Intent(FavoriteActivity.this, MainActivity.class));
-                        yield true;
-                    }
-                    case R.id.navigation_offline_album -> {
-                        startActivity(new Intent(FavoriteActivity.this, OfflineAlbumActivity.class));
-                        yield true;
-                    }
-                    case R.id.navigation_favorite ->
-                        // Already in FavoriteActivity
-                            true;
-                    case R.id.navigation_login -> {
-                        startActivity(new Intent(FavoriteActivity.this, LoginActivity.class));
-                        yield true;
-                    }
-                    case R.id.navigation_search -> {
-                        startActivity(new Intent(FavoriteActivity.this, SearchActivity.class));
-                        yield true;
-                    }
-                    default -> false;
-                };
-            }
-        });
-
-        // Highlight the favorite icon correctly
-        bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
-    }
+//    private void setupBottomNavigationView() {
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+//        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @SuppressLint("NonConstantResourceId")
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                return switch (item.getItemId()) {
+//                    case R.id.navigation_main -> {
+//                        startActivity(new Intent(FavoriteActivity.this, MainActivity.class));
+//                        yield true;
+//                    }
+//                    case R.id.navigation_offline_album -> {
+//                        startActivity(new Intent(FavoriteActivity.this, OfflineAlbumActivity.class));
+//                        yield true;
+//                    }
+//                    case R.id.navigation_favorite ->
+//                        // Already in FavoriteActivity
+//                            true;
+//                    case R.id.navigation_login -> {
+//                        startActivity(new Intent(FavoriteActivity.this, LoginActivity.class));
+//                        yield true;
+//                    }
+//                    case R.id.navigation_search -> {
+//                        startActivity(new Intent(FavoriteActivity.this, SearchActivity.class));
+//                        yield true;
+//                    }
+//                    default -> false;
+//                };
+//            }
+//        });
+//
+//        // Highlight the favorite icon correctly
+//        bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
+//    }
 }
