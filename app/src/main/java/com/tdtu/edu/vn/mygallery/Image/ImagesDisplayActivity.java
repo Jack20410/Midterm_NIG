@@ -124,7 +124,7 @@ public class ImagesDisplayActivity extends AppCompatActivity {
                             imageData.put("tag", tag);  // Add the tag or keyword
 
                             // Save the image data to Firebase Realtime Database
-                            DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
+                            DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
                                     .getReference("users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .child("albums")
@@ -145,7 +145,7 @@ public class ImagesDisplayActivity extends AppCompatActivity {
     }
 
     public static void deleteImageFromFirebase(String imageUrl) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/");
         DatabaseReference userRef = database.getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums");  // Navigate to the albums node
@@ -169,7 +169,7 @@ public class ImagesDisplayActivity extends AppCompatActivity {
     }
 
     private void loadImagesFromFirebase() {
-        DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
+        DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
                 .getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums")

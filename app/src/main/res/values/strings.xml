@@ -3,4 +3,10 @@
     <string name="image_desc">Image in slideshow</string>
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="location_icon">Location Icon</string>
+    <string name="delete_image">Delete Image</string>
+    <string name="location_button_desc">View photo location</string>
+    <string name="image_content_desc">Image preview</string>
+
+
 </resources>

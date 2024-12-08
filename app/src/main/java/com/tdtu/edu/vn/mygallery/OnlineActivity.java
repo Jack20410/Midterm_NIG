@@ -74,7 +74,7 @@ public class OnlineActivity extends AppCompatActivity {
             finish(); // Close the current activity
         });
         // Initialize FirebaseDatabase instance
-        database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        database = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/");
         // Initialize RecyclerView and AlbumAdapter
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
@@ -95,7 +95,7 @@ public class OnlineActivity extends AppCompatActivity {
     }
 
     private void searchImagesByTag(String tag) {
-        DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
+        DatabaseReference imagesRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
                 .getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums");
@@ -152,7 +152,7 @@ public class OnlineActivity extends AppCompatActivity {
         builder.show();
     }
     public void renameAlbumInFirebase(String albumId, String newAlbumName) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/");
         DatabaseReference albumRef = database.getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums").child(albumId);
@@ -166,7 +166,7 @@ public class OnlineActivity extends AppCompatActivity {
         });
     }
     public void deleteAlbumFromFirebase(String albumId) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/");
         DatabaseReference albumRef = database.getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums").child(albumId);
@@ -180,7 +180,7 @@ public class OnlineActivity extends AppCompatActivity {
         });
     }
     private void saveAlbumToFirebase(String albumName) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/");
         DatabaseReference myRef = database.getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums");
@@ -219,7 +219,7 @@ public class OnlineActivity extends AppCompatActivity {
         builder.show();
     }
     private void loadAlbumsFromFirebase() {
-        DatabaseReference myRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
+        DatabaseReference myRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
                 .getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("albums");
