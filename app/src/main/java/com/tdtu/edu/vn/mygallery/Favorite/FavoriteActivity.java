@@ -71,39 +71,4 @@ public class FavoriteActivity extends AppCompatActivity {
 
         Log.d("FavoriteImages", "Total favorite images loaded: " + favoriteImages.size());
     }
-
-//    private void setupBottomNavigationView() {
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-//        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-//            @SuppressLint("NonConstantResourceId")
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                return switch (item.getItemId()) {
-//                    case R.id.navigation_main -> {
-//                        startActivity(new Intent(FavoriteActivity.this, MainActivity.class));
-//                        yield true;
-//                    }
-//                    case R.id.navigation_offline_album -> {
-//                        startActivity(new Intent(FavoriteActivity.this, OfflineAlbumActivity.class));
-//                        yield true;
-//                    }
-//                    case R.id.navigation_favorite ->
-//                        // Already in FavoriteActivity
-//                            true;
-//                    case R.id.navigation_login -> {
-//                        startActivity(new Intent(FavoriteActivity.this, LoginActivity.class));
-//                        yield true;
-//                    }
-//                    case R.id.navigation_search -> {
-//                        startActivity(new Intent(FavoriteActivity.this, SearchActivity.class));
-//                        yield true;
-//                    }
-//                    default -> false;
-//                };
-//            }
-//        });
-//
-//        // Highlight the favorite icon correctly
-//        bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
-//    }
 }

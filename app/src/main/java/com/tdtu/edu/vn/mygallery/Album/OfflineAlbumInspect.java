@@ -42,6 +42,8 @@ public class OfflineAlbumInspect extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offline_images_inspect);
 
+        db = AppDatabase.getInstance(this);
+        albumDao = db.offlineAlbumDao();
         requestStoragePermission();
         db = AppDatabase.getInstance(this);
 
@@ -60,8 +62,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
             finish();
         }
 
-        db = AppDatabase.getInstance(this);
-        albumDao = db.offlineAlbumDao();
 
         loadImages(albumId);
 
