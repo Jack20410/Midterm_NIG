@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/username_icon"
                     android:background="@android:color/transparent"
-                    android:hint="Email"
+                    android:hint="Username or Email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:paddingLeft="17dp"
