@@ -36,13 +36,11 @@
         </activity>
 
         <!-- Other activities -->
-        <activity android:name=".LoginActivity" android:exported="true" />
         <activity android:name=".RegisterActivity" android:exported="true" />
         <activity android:name=".Image.ImagesDisplayActivity" />
         <activity android:name=".OnlineActivity" />
         <activity android:name=".Utilities.RecycleBinActivity" />
         <activity android:name=".Image.ImageInspectActivity" />
-        <activity android:name=".Album.OfflineAlbumActivity" />
         <activity
             android:name=".Album.OfflineAlbumInspect"
             android:parentActivityName=".MainActivity" />
