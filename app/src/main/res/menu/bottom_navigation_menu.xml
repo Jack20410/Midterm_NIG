@@ -5,23 +5,34 @@
         android:id="@+id/navigation_main"
         android:icon="@drawable/baseline_home_24"
         android:title="Main"
-        app:itemIconSize="24dp"
-        app:itemTextAppearanceActive="@style/TextAppearance.AppCompat.Small"
-        app:itemTextAppearanceInactive="@style/TextAppearance.AppCompat.Small"/>
+        app:showAsAction="ifRoom"
+        app:itemIconSize="24dp" />
+
     <item
         android:id="@+id/navigation_offline_album"
         android:icon="@drawable/baseline_photo_album_24"
-        android:title="Offline Album"/>
+        android:title="Offline Album"
+        app:showAsAction="ifRoom"
+        app:itemIconSize="24dp" />
+
     <item
         android:id="@+id/navigation_favorite"
         android:icon="@drawable/ic_favorite"
-        android:title="Favorite" />
+        android:title="Favorite"
+        app:showAsAction="ifRoom"
+        app:itemIconSize="24dp" />
+
     <item
         android:id="@+id/navigation_search"
         android:icon="@drawable/baseline_search_24"
-        android:title="Search"/>
+        android:title="Search"
+        app:showAsAction="ifRoom"
+        app:itemIconSize="24dp" />
+
     <item
         android:id="@+id/navigation_login"
         android:icon="@drawable/baseline_login_24"
-        android:title="Login"/>
+        android:title="Login"
+        app:showAsAction="ifRoom"
+        app:itemIconSize="24dp" />
 </menu>
