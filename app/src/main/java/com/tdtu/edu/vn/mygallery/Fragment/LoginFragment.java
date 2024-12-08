@@ -2,18 +2,21 @@ package com.tdtu.edu.vn.mygallery.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Patterns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.tdtu.edu.vn.mygallery.OnlineActivity;
@@ -21,9 +24,10 @@ import com.tdtu.edu.vn.mygallery.R;
 import com.tdtu.edu.vn.mygallery.RegisterActivity;
 
 public class LoginFragment extends Fragment {
+
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
-    private EditText emailField, passwordField;
+    private DatabaseReference usersRef;
+    private EditText inputField, passwordField;
     private Button loginButton, registerButton;
 
     @Nullable
@@ -31,21 +35,17 @@ public class LoginFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_activity_login, container, false);
 
+        // Initialize Firebase and UI elements
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("users");
+        usersRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
+                .getReference("users");
 
-        emailField = view.findViewById(R.id.emailField);
+        inputField = view.findViewById(R.id.emailField); // Generic input field for username/email
         passwordField = view.findViewById(R.id.passwordField);
         loginButton = view.findViewById(R.id.loginButton);
         registerButton = view.findViewById(R.id.registerButton);
 
-        // Check if the user is already logged in
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            redirectToOnlineActivity();
-        }
-
-        // Login button logic
+        // Login logic
         loginButton.setOnClickListener(v -> loginUser());
 
         // Navigate to RegisterActivity
@@ -58,40 +58,84 @@ public class LoginFragment extends Fragment {
     }
 
     private void loginUser() {
-        String email = emailField.getText().toString().trim();
+        String input = inputField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
-        if (!validateInputs(email, password)) return;
+        if (input.isEmpty()) {
+            inputField.setError("Username or email is required");
+            inputField.requestFocus();
+            return;
+        }
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Navigate to OnlineActivity
-                        redirectToOnlineActivity();
-                    } else {
-                        Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
+        if (password.isEmpty()) {
+            passwordField.setError("Password is required");
+            passwordField.requestFocus();
+            return;
+        }
+
+        if (input.contains("@")) {
+            // Input is an email
+            authenticateUser(input, password);
+        } else {
+            // Input is a username
+            fetchEmailByUsername(input, password);
+        }
+    }
+
+    private void fetchEmailByUsername(String username, String password) {
+        // Check if user is authenticated
+        if (mAuth.getCurrentUser() == null) {
+            Log.e("LoginFragment", "User is not authenticated!");
+            Toast.makeText(getContext(), "Please log in to continue.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Debugging log for query initiation
+        Log.d("LoginFragment", "Querying database for username: " + username);
+
+        usersRef.orderByChild("username").equalTo(username)
+                .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            Log.d("LoginFragment", "Username exists in database: " + username);
+
+                            for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                                String email = userSnapshot.child("email").getValue(String.class);
+
+                                if (email != null) {
+                                    Log.d("LoginFragment", "Email retrieved: " + email);
+                                    authenticateUser(email, password);
+                                    return;
+                                } else {
+                                    Log.e("LoginFragment", "Email field is null for username: " + username);
+                                    Toast.makeText(getContext(), "Email not found for this username.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            Log.e("LoginFragment", "No user found with username: " + username);
+                            Toast.makeText(getContext(), "No user found with that username.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("LoginFragment", "Database query failed: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error fetching data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private boolean validateInputs(String email, String password) {
-        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Enter a valid email");
-            emailField.requestFocus();
-            return false;
-        }
-        if (password.isEmpty() || password.length() < 6) {
-            passwordField.setError("Password must be at least 6 characters");
-            passwordField.requestFocus();
-            return false;
-        }
-        return true;
-    }
-
-    private void redirectToOnlineActivity() {
-        // Redirect to OnlineActivity
-        Intent intent = new Intent(requireContext(), OnlineActivity.class);
-        startActivity(intent);
-        requireActivity().finish(); // Close LoginFragment to prevent going back
+    private void authenticateUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Redirect to OnlineActivity on success
+                Intent intent = new Intent(getContext(), OnlineActivity.class);
+                startActivity(intent);
+                requireActivity().finish();
+            } else {
+                Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
