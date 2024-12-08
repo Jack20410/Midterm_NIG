@@ -63,6 +63,12 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        if (username.contains("@")) {
+            usernameField.setError("Username cannot contain '@'");
+            usernameField.requestFocus();
+            return;
+        }
+
         if (email.isEmpty()) {
             emailField.setError("Email is required");
             emailField.requestFocus();
