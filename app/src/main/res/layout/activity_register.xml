@@ -98,7 +98,8 @@ android:layout_height="wrap_content">
                 android:layout_height="10.3dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="17dp"
-                android:src="@drawable/email" />
+                android:src="@drawable/email"
+                tools:ignore="DuplicateIds" />
         </RelativeLayout>
 
         <!-- Input fields for password -->
