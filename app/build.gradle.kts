@@ -36,13 +36,14 @@ android {
 
 dependencies {
     // Firebase dependencies using Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-auth:22.1.2")
     implementation("com.google.firebase:firebase-database:21.0.0")
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-dynamic-module-support:16.0.0-beta03")
 
     // Google Maps SDK for Android
     implementation("com.google.android.gms:play-services-maps:18.0.2")
