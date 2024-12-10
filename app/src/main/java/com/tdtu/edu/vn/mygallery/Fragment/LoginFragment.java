@@ -129,13 +129,23 @@ public class LoginFragment extends Fragment {
     private void authenticateUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Redirect to OnlineActivity on success
-                Intent intent = new Intent(getContext(), OnlineActivity.class);
-                startActivity(intent);
-                requireActivity().finish();
+                String uid = mAuth.getCurrentUser().getUid();
+                usersRef.child(uid).get().addOnCompleteListener(userTask -> {
+                    if (userTask.isSuccessful()) {
+                        String username = userTask.getResult().child("username").getValue(String.class);
+                        if (username != null) {
+                            Toast.makeText(getContext(), "Welcome, " + username + "!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getContext(), OnlineActivity.class);
+                            intent.putExtra("username", username);
+                            startActivity(intent);
+                            requireActivity().finish();
+                        }
+                    }
+                });
             } else {
-                Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 }
