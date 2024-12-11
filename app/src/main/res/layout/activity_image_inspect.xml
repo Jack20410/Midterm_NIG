@@ -92,6 +92,6 @@
             android:layout_height="wrap_content"
             android:contentDescription="Open Map"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_dialog_map" />
+            android:src="@android:drawable/ic_menu_compass" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
