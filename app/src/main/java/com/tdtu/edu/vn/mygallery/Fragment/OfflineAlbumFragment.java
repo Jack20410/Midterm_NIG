@@ -40,7 +40,13 @@ public class OfflineAlbumFragment extends Fragment {
         initUI(view);
         Executors.newSingleThreadExecutor().execute(() -> {
             db = AppDatabase.getInstance(requireContext());
-            loadAlbums();
+            requireActivity().runOnUiThread(() -> {
+                if (db == null) {
+                    Toast.makeText(requireContext(), "Database initialization failed", Toast.LENGTH_SHORT).show();
+                } else {
+                    loadAlbums();
+                }
+            });
         });
 
         return view;
