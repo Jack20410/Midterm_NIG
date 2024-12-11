@@ -127,8 +127,8 @@ public class SearchFragment extends Fragment {
         ImageAdapter adapter = new ImageAdapter(
                 imagePaths,
                 requireContext(),
-                this::onImageClicked, // Image click listener
-                this::onLocationIconClicked // Location button click listener
+                this::onImageClicked // Image click listener
+                // Location button click listener
         );
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();

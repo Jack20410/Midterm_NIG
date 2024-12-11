@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
 import com.tdtu.edu.vn.mygallery.Utilities.FileManager;
 import com.tdtu.edu.vn.mygallery.R;
 
@@ -49,14 +50,21 @@ public class ImageInspectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_inspect);
 
+        // Initialize the context
         context = this;
 
+        // Initialize the views
         viewPager = findViewById(R.id.viewPager);
         noImagesMessage = findViewById(R.id.noImagesMessage);
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         moveToRecycleBinButton = findViewById(R.id.moveToRecycleBinButton);
         ImageButton addTagButton = findViewById(R.id.addTagButton);
+        ImageButton mapButton = findViewById(R.id.mapButton); // Initialize mapButton here
 
+        // Set up map button click listener
+        mapButton.setOnClickListener(v -> handleMapButtonClick());
+
+        // Set up add tag button click listener
         addTagButton.setOnClickListener(v -> {
             String currentImagePath = imagePaths.get(currentIndex);
             if (currentImagePath != null) {
@@ -97,14 +105,7 @@ public class ImageInspectActivity extends AppCompatActivity {
         // Call the new setupViewPager with the valid imagePath
         setupViewPager(imagePath);
 
-        addTagButton.setOnClickListener(v -> {
-            if (!imagePaths.isEmpty()) {
-                showTagDialog(imagePaths.get(currentIndex));
-            } else {
-                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        // Set up add to favorites button click listener
         addToFavoritesButton.setOnClickListener(v -> {
             if (!imagePaths.isEmpty()) {
                 confirmAddToFavorites(imagePaths.get(currentIndex));
@@ -113,6 +114,7 @@ public class ImageInspectActivity extends AppCompatActivity {
             }
         });
 
+        // Set up move to recycle bin button click listener
         moveToRecycleBinButton.setOnClickListener(v -> {
             if (!imagePaths.isEmpty()) {
                 confirmMoveToRecycleBin(imagePaths.get(currentIndex));
@@ -120,8 +122,33 @@ public class ImageInspectActivity extends AppCompatActivity {
                 Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
+
+    private void handleMapButtonClick() {
+        float[] latLong = getLatLongFromImage(imagePath);
+        if (latLong != null) {
+            Intent mapIntent = new Intent(context, PhotoLocationActivity.class);
+            mapIntent.putExtra("photoPath", imagePath);
+            mapIntent.putExtra("latitude", (double) latLong[0]);
+            mapIntent.putExtra("longitude", (double) latLong[1]);
+            startActivity(mapIntent);
+        } else {
+            Toast.makeText(context, "No location data available for this image.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private float[] getLatLongFromImage(String imagePath) {
+        try {
+            android.media.ExifInterface exif = new android.media.ExifInterface(imagePath);
+            float[] latLong = new float[2];
+            if (exif.getLatLong(latLong)) {
+                return latLong;
+            }
+        } catch (Exception e) {
+            Log.e("ImageInspectActivity", "Error extracting location data: " + e.getMessage());
+        }
+        return null;
+    }
+
 
 
     private void showTagDialog(String imagePath) {

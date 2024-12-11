@@ -30,17 +30,5 @@
             android:background="?android:attr/selectableItemBackground"
             android:src="@android:drawable/ic_delete"
             android:contentDescription="@string/delete_image" />
-
-        <!-- Location Icon for images with GPS data -->
-        <ImageView
-            android:id="@+id/locationIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="8dp"
-            android:src="@android:drawable/ic_menu_mylocation"
-            android:visibility="gone"
-            android:contentDescription="@string/location_icon" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
