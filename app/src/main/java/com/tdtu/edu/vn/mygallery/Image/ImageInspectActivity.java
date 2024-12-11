@@ -45,7 +45,6 @@ public class ImageInspectActivity extends AppCompatActivity {
     private Map<String, String> imageTags = new HashMap<>();
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_inspect);
@@ -59,15 +58,15 @@ public class ImageInspectActivity extends AppCompatActivity {
         addToFavoritesButton = findViewById(R.id.addToFavoritesButton);
         moveToRecycleBinButton = findViewById(R.id.moveToRecycleBinButton);
         ImageButton addTagButton = findViewById(R.id.addTagButton);
-        ImageButton mapButton = findViewById(R.id.mapButton); // Initialize mapButton here
+        ImageButton mapButton = findViewById(R.id.mapButton);
 
         // Set up map button click listener
         mapButton.setOnClickListener(v -> handleMapButtonClick());
 
         // Set up add tag button click listener
         addTagButton.setOnClickListener(v -> {
-            String currentImagePath = imagePaths.get(currentIndex);
-            if (currentImagePath != null) {
+            if (!imagePaths.isEmpty() && currentIndex >= 0) {
+                String currentImagePath = imagePaths.get(currentIndex);
                 showTagDialog(currentImagePath);
             } else {
                 Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
@@ -84,6 +83,7 @@ public class ImageInspectActivity extends AppCompatActivity {
             return; // Exit early to avoid unnecessary setup
         }
 
+        // Load images from the folder
         loadImagesFromFolder(imagePath);
 
         if (imagePaths.isEmpty()) {
@@ -93,7 +93,7 @@ public class ImageInspectActivity extends AppCompatActivity {
             return; // Exit early as no images are available
         }
 
-        // Ensure imagePath is valid and synchronized
+        // Validate and synchronize imagePath with the list
         if (!imagePaths.contains(imagePath)) {
             Log.e("ImageInspectActivity", "The provided image path is not in the loaded image list.");
             imagePath = imagePaths.get(0); // Default to the first image
@@ -102,12 +102,12 @@ public class ImageInspectActivity extends AppCompatActivity {
             currentIndex = imagePaths.indexOf(imagePath);
         }
 
-        // Call the new setupViewPager with the valid imagePath
+        // Call setupViewPager with the valid imagePath
         setupViewPager(imagePath);
 
         // Set up add to favorites button click listener
         addToFavoritesButton.setOnClickListener(v -> {
-            if (!imagePaths.isEmpty()) {
+            if (!imagePaths.isEmpty() && currentIndex >= 0) {
                 confirmAddToFavorites(imagePaths.get(currentIndex));
             } else {
                 Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
@@ -116,13 +116,14 @@ public class ImageInspectActivity extends AppCompatActivity {
 
         // Set up move to recycle bin button click listener
         moveToRecycleBinButton.setOnClickListener(v -> {
-            if (!imagePaths.isEmpty()) {
+            if (!imagePaths.isEmpty() && currentIndex >= 0) {
                 confirmMoveToRecycleBin(imagePaths.get(currentIndex));
             } else {
                 Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void handleMapButtonClick() {
         float[] latLong = getLatLongFromImage(imagePath);
@@ -148,6 +149,7 @@ public class ImageInspectActivity extends AppCompatActivity {
         }
         return null;
     }
+
 
 
 

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImageAdapter.ImageViewHolder> {
 
-    private List<String> imagePaths;
+    private final List<String> imagePaths;
     private final Context context;
 
     public RecycleBinImageAdapter(List<String> imagePaths, Context context) {
@@ -49,20 +49,16 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
                 .into(holder.imageView);
 
         // Restore Button Action
-        holder.restoreButton.setOnClickListener(v -> {
-            restoreImage(imagePath, position);
-        });
+        holder.restoreButton.setOnClickListener(v -> restoreImage(imagePath, position));
 
         // Delete Button Action
-        holder.deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Permanently Delete Picture")
-                    .setMessage("Are you sure you want to permanently delete this picture?")
-                    .setPositiveButton("Yes", (dialog, which) -> deleteImage(imagePath, position))
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .create()
-                    .show();
-        });
+        holder.deleteButton.setOnClickListener(v -> new AlertDialog.Builder(context)
+                .setTitle("Permanently Delete Picture")
+                .setMessage("Are you sure you want to permanently delete this picture?")
+                .setPositiveButton("Yes", (dialog, which) -> deleteImage(imagePath, position))
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show());
     }
 
     @Override
@@ -72,7 +68,7 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
 
     private void restoreImage(String imagePath, int position) {
         File sourceFile = new File(imagePath);
-        File destinationDir = new File("/storage/emulated/0/DCIM/Restored");
+        File destinationDir = new File(context.getExternalFilesDir(null), "Restored");
 
         if (!destinationDir.exists() && !destinationDir.mkdirs()) {
             Toast.makeText(context, "Failed to create destination directory", Toast.LENGTH_SHORT).show();
@@ -80,13 +76,12 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
         }
 
         File destinationFile = new File(destinationDir, sourceFile.getName());
-
         try {
             // Move the file to the Restored directory
             Files.move(sourceFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            Log.d("RecycleBinAdapter", "File moved to: " + destinationFile.getAbsolutePath());
+            Log.d("RecycleBinAdapter", "File restored to: " + destinationFile.getAbsolutePath());
 
-            // Update the media gallery
+            // Notify the media scanner about the restored file
             MediaScannerConnection.scanFile(
                     context,
                     new String[]{destinationFile.getAbsolutePath()},
@@ -99,6 +94,11 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, imagePaths.size());
 
+            // Notify the RecycleBinActivity to refresh the UI
+            if (context instanceof RecycleBinActivity) {
+                ((RecycleBinActivity) context).reloadDeletedImages();
+            }
+
             Toast.makeText(context, "Image restored successfully", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("RecycleBinAdapter", "Failed to restore image", e);
@@ -106,20 +106,13 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
         }
     }
 
+
     private void deleteImage(String imagePath, int position) {
         File file = new File(imagePath);
-
         if (file.exists() && file.delete()) {
-            // Notify the media gallery about the deletion
-            MediaScannerConnection.scanFile(context, new String[]{imagePath}, null, (path, uri) -> {
-                Log.d("RecycleBinAdapter", "Image deleted from storage: " + path);
-            });
-
-            // Remove the file from the adapter's list
             imagePaths.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, imagePaths.size());
-
             Toast.makeText(context, "Image permanently deleted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Failed to delete image", Toast.LENGTH_SHORT).show();
