@@ -12,7 +12,7 @@ import android.content.Context;
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbum;
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumDao;
 
-@Database(entities = {OfflineAlbum.class}, version = 5) // Increment version to 2
+@Database(entities = {OfflineAlbum.class}, version = 6) // Increment version to 2
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
 
