@@ -12,14 +12,14 @@ import android.content.Context;
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbum;
 import com.tdtu.edu.vn.mygallery.Album.OfflineAlbumDao;
 
-@Database(entities = {OfflineAlbum.class}, version = 6) // Increment version to 2
+@Database(entities = {OfflineAlbum.class}, version = 2) // Increment version to 2
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
 
     public abstract OfflineAlbumDao offlineAlbumDao();
 
     // Migration from version 1 to version 2
-    private static final Migration MIGRATION_2_6 = new Migration(2, 6) {
+    private static final Migration MIGRATION_2_6 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Add new columns for latitude and longitude to the offline album table
@@ -33,6 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "offline_album_db")
                     .addMigrations(MIGRATION_2_6) // Add migration here
+                    .fallbackToDestructiveMigration()
                     .build();
         }
         return instance;

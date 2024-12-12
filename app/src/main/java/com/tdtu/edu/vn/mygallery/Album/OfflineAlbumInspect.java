@@ -164,20 +164,6 @@ public class OfflineAlbumInspect extends AppCompatActivity {
     }
 
     private String copyImageToLocalStorage(Uri imageUri) {
-//        String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Unique filename for each image
-//        File outputFile = new File(getFilesDir(), fileName); // Save in internal storage
-//        try (InputStream inputStream = getContentResolver().openInputStream(imageUri);
-//             OutputStream outputStream = new FileOutputStream(outputFile)) {
-//            byte[] buffer = new byte[1024];
-//            int bytesRead;
-//            while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                outputStream.write(buffer, 0, bytesRead);
-//            }
-//            return outputFile.getAbsolutePath(); // Return the local file path
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
         String fileName = "image_" + System.currentTimeMillis() + ".jpg";
         File outputFile = new File(getFilesDir(), fileName);
         try (InputStream inputStream = getContentResolver().openInputStream(imageUri);
