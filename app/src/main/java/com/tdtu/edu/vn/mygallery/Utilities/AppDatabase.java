@@ -19,7 +19,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract OfflineAlbumDao offlineAlbumDao();
 
     // Migration from version 1 to version 2
-    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+    private static final Migration MIGRATION_2_6 = new Migration(2, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Add new columns for latitude and longitude to the offlinealbum table
@@ -32,7 +32,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "offline_album_db")
-                    .addMigrations(MIGRATION_1_2) // Add migration here
+                    .addMigrations(MIGRATION_2_6) // Add migration here
                     .build();
         }
         return instance;
