@@ -89,6 +89,12 @@ public class OfflineAlbumFragment extends Fragment {
     }
 
     private void loadAlbums() {
+        if (db == null) {
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Database is not initialized!", Toast.LENGTH_SHORT).show()
+            );
+            return;
+        }
         Executors.newSingleThreadExecutor().execute(() -> {
             List<OfflineAlbum> albums = db.offlineAlbumDao().getAllAlbums();
             requireActivity().runOnUiThread(() -> {

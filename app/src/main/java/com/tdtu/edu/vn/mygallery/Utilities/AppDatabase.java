@@ -22,7 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // Add new columns for latitude and longitude to the offlinealbum table
+            // Add new columns for latitude and longitude to the offline album table
             database.execSQL("ALTER TABLE offlinealbum ADD COLUMN latitude REAL");
             database.execSQL("ALTER TABLE offlinealbum ADD COLUMN longitude REAL");
         }
