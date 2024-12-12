@@ -56,7 +56,7 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void displayImagesInGrid(List<String> images) {
-        ImageAdapter adapter = new ImageAdapter(images, this, this::onImageClicked, this::onLocationIconClicked);
+        ImageAdapter adapter = new ImageAdapter(images, this, this::onImageClicked);
         recyclerView.setAdapter(adapter);
     }
 

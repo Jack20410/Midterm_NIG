@@ -18,6 +18,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     public interface OnAlbumActionListener {
         void onRenameAlbum(Album album);
         void onDeleteAlbum(Album album);
+        void onAlbumClick(Album album);
     }
 
     public AlbumAdapter(List<Album> albumList, OnAlbumActionListener albumActionListener) {
@@ -35,24 +36,29 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     @Override
     public void onBindViewHolder(@NonNull AlbumViewHolder holder, int position) {
         Album album = albumList.get(position);
-
-        // Set album name
         holder.albumName.setText(album.getAlbumName());
 
-        // Set rename button click listener
+        // Handle clicking the entire album item
+        holder.itemView.setOnClickListener(v -> {
+            if (albumActionListener != null) {
+                albumActionListener.onAlbumClick(album);
+            }
+        });
+
+        // Existing rename and delete listeners
         holder.renameButton.setOnClickListener(v -> {
             if (albumActionListener != null) {
                 albumActionListener.onRenameAlbum(album);
             }
         });
 
-        // Set delete button click listener
         holder.deleteButton.setOnClickListener(v -> {
             if (albumActionListener != null) {
                 albumActionListener.onDeleteAlbum(album);
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

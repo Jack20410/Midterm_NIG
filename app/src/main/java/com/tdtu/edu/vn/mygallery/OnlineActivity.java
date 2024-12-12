@@ -25,6 +25,7 @@ import com.tdtu.edu.vn.mygallery.Album.Album;
 import com.tdtu.edu.vn.mygallery.Album.AlbumAdapter;
 import com.tdtu.edu.vn.mygallery.Fragment.LoginFragment;
 import com.tdtu.edu.vn.mygallery.Image.ImagesAdapter;
+import com.tdtu.edu.vn.mygallery.Image.ImagesDisplayActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,7 +110,15 @@ public class OnlineActivity extends AppCompatActivity {
             public void onDeleteAlbum(Album album) {
                 deleteAlbumFromFirebase(album.getId());
             }
+
+            @Override
+            public void onAlbumClick(Album album) {  // New method
+                Intent intent = new Intent(OnlineActivity.this, ImagesDisplayActivity.class);
+                intent.putExtra("albumId", album.getId());
+                startActivity(intent);
+            }
         });
+
         recyclerView.setAdapter(albumAdapter);
 
         Button fab = findViewById(R.id.fab);

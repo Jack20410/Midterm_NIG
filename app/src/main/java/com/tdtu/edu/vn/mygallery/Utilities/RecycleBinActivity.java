@@ -26,21 +26,24 @@ public class RecycleBinActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewRecycleBin);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize the adapter once to avoid multiple instances
+        // Initialize the adapter
         adapter = new RecycleBinImageAdapter(deletedImagePaths, this);
         recyclerView.setAdapter(adapter);
 
-        loadDeletedImages(); // Load images on activity creation
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadDeletedImages(); // Reload to ensure updates are reflected
+        // Load deleted images
+        loadDeletedImages();
     }
     public void reloadDeletedImages() {
         loadDeletedImages(); // Reload images from the Recycle Bin folder
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadDeletedImages();
+    }
+
     private void loadDeletedImages() {
         deletedImagePaths.clear(); // Clear list to avoid duplicates
 
@@ -66,5 +69,5 @@ public class RecycleBinActivity extends AppCompatActivity {
         Log.d("RecycleBinActivity", "Total deleted images loaded: " + deletedImagePaths.size());
 
         adapter.notifyDataSetChanged(); // Ensure RecyclerView updates correctly
-    }
-}
+    }}
+

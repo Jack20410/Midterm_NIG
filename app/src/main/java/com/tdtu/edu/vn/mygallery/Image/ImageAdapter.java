@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,14 +22,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private final List<String> imagePaths;
     private final Context context;
     private final OnImageClickListener imageClickListener;
-    private final OnLocationClickListener locationClickListener;
 
-    // Constructor with image and location click listeners
-    public ImageAdapter(List<String> imagePaths, Context context, OnImageClickListener imageClickListener, OnLocationClickListener locationClickListener) {
+    // Constructor
+    public ImageAdapter(List<String> imagePaths, Context context, OnImageClickListener imageClickListener) {
         this.imagePaths = imagePaths;
         this.context = context;
         this.imageClickListener = imageClickListener;
-        this.locationClickListener = locationClickListener;
     }
 
     @NonNull
@@ -69,15 +66,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 Log.w("ImageAdapter", "No ImageClickListener defined for position " + position);
             }
         });
-
-        // Set location button click listener
-        holder.locationButton.setOnClickListener(v -> {
-            if (locationClickListener != null) {
-                locationClickListener.onLocationIconClicked(imagePath);
-            } else {
-                Log.w("ImageAdapter", "No LocationClickListener defined for position " + position);
-            }
-        });
     }
 
     @Override
@@ -93,22 +81,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton locationButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-            locationButton = itemView.findViewById(R.id.locationButton);
         }
     }
 
     // Interface for image click handling
     public interface OnImageClickListener {
         void onImageClicked(String imagePath);
-    }
-
-    // Interface for location icon click handling
-    public interface OnLocationClickListener {
-        void onLocationIconClicked(String imagePath);
     }
 }

@@ -1,11 +1,8 @@
 package com.tdtu.edu.vn.mygallery.Fragment;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,9 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
 import com.tdtu.edu.vn.mygallery.Image.ImageData;
-import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
-import com.tdtu.edu.vn.mygallery.R;
 import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
+import com.tdtu.edu.vn.mygallery.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,8 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 public class MainFragment extends Fragment {
-
-    private static final int PERMISSION_REQUEST_CODE = 100;
 
     private RecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
@@ -93,17 +86,17 @@ public class MainFragment extends Fragment {
 
     private void checkPermissionsAndLoadImages() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, PERMISSION_REQUEST_CODE);
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 100);
             } else {
                 allImages = loadImagesFromDevice();
                 displayImagesInGrid(allImages);
             }
         } else {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
             } else {
                 allImages = loadImagesFromDevice();
                 displayImagesInGrid(allImages);
@@ -163,26 +156,7 @@ public class MainFragment extends Fragment {
                     Intent intent = new Intent(requireContext(), ImageInspectActivity.class);
                     intent.putExtra("IMAGE_PATH", imagePath);
                     startActivity(intent);
-                },
-                imagePath -> {
-                    try {
-                        float[] latLong = getLatLongFromImage(imagePath);
-                        if (latLong != null) {
-                            Intent intent = new Intent(requireContext(), PhotoLocationActivity.class);
-                            intent.putExtra("photoPath", imagePath);
-                            intent.putExtra("latitude", (double) latLong[0]); // Cast to double
-                            intent.putExtra("longitude", (double) latLong[1]); // Cast to double
-                            Log.d("MainFragment", "Launching PhotoLocationActivity with Lat: " + latLong[0] + ", Long: " + latLong[1]);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(requireContext(), "This image has no location data.", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Log.e("MainFragment", "Error reading location data: " + e.getMessage());
-                        Toast.makeText(requireContext(), "Unable to read location data.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+                });
 
         recyclerView.setAdapter(adapter);
     }
@@ -207,21 +181,5 @@ public class MainFragment extends Fragment {
         if (recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyDataSetChanged();
         }
-    }
-
-    private float[] getLatLongFromImage(String imagePath) {
-        try {
-            ExifInterface exif = new ExifInterface(imagePath);
-            float[] latLong = new float[2];
-            if (exif.getLatLong(latLong)) {
-                Log.d("MainFragment", "Latitude: " + latLong[0] + ", Longitude: " + latLong[1]);
-                return latLong;
-            } else {
-                Log.d("MainFragment", "No GPS data in EXIF for image: " + imagePath);
-            }
-        } catch (Exception e) {
-            Log.e("MainFragment", "Error extracting location data from image: " + e.getMessage());
-        }
-        return null;
     }
 }
