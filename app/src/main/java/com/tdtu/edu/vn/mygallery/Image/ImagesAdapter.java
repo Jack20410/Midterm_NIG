@@ -1,5 +1,7 @@
 package com.tdtu.edu.vn.mygallery.Image;
 
+import static com.tdtu.edu.vn.mygallery.Image.ImagesDisplayActivity.deleteImageFromFirebase;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -51,7 +53,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
                 .into(holder.imageView);
 
         // Set up click listener to inspect the image
-        holder.bind(imageUrl);
+//        holder.bind(imageUrl);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ImageInspectActivity.class);
+            intent.putExtra("IMAGE_PATH", imageUrl);
+            context.startActivity(intent);
+        });
 
         // Add a long-click listener to show the contextual menu
         holder.itemView.setOnLongClickListener(v -> {
@@ -72,7 +79,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
                             Log.d("ImagesAdapter", "Deleting image at position: " + position);
 
                             // Remove the image from Firebase or the list (update this logic as needed)
-
+                            deleteImageFromFirebase(imageUrls.get(position));
                             imageUrls.remove(position);
                             notifyItemRemoved(position);
                             notifyItemRangeChanged(position, imageUrls.size());
@@ -104,12 +111,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-//        ImageButton deleteButton;
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);  // Ensure this matches your XML layout ID
         }
-
         public void bind(String imageUrl) {
             itemView.setOnClickListener(v -> {
                 // Log the imagePath to check if it's null or valid
@@ -118,32 +123,31 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
                 // Navigate to ImageInspectActivity with the clicked image's path
                 Intent intent = new Intent(context, ImageInspectActivity.class);
                 intent.putExtra("IMAGE_PATH", imageUrl);  // Pass the image path to the activity
-
                 context.startActivity(intent);
             });
         }
 
-        private void showDeleteConfirmationDialog(int position) {
-            // Create an AlertDialog to confirm deletion
-            new AlertDialog.Builder(context)
-                    .setTitle("Delete Picture")
-                    .setMessage("Do you want to delete this picture?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        Log.d("ImageAdapter", "Deleting image at position: " + position);
-
-                        // Remove the image from Firebase
-
-
-                        // Remove the image from the list and notify RecyclerView
-                        imageUrls.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, imageUrls.size());
-
-                        Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .create()
-                    .show();
-        }
+//        private void showDeleteConfirmationDialog(int position) {
+//            // Create an AlertDialog to confirm deletion
+//            new AlertDialog.Builder(context)
+//                    .setTitle("Delete Picture")
+//                    .setMessage("Do you want to delete this picture?")
+//                    .setPositiveButton("Yes", (dialog, which) -> {
+//                        Log.d("ImageAdapter", "Deleting image at position: " + position);
+//
+//                        // Remove the image from Firebase
+//
+//
+//                        // Remove the image from the list and notify RecyclerView
+//                        imageUrls.remove(position);
+//                        notifyItemRemoved(position);
+//                        notifyItemRangeChanged(position, imageUrls.size());
+//
+//                        Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+//                    })
+//                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+//                    .create()
+//                    .show();
+//        }
     }
 }

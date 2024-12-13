@@ -41,8 +41,7 @@
         app:layout_constraintTop_toBottomOf="@id/searchView"
         app:layout_constraintBottom_toTopOf="@+id/fab"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_album" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- FloatingActionButton aligned to the bottom right -->
 <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
