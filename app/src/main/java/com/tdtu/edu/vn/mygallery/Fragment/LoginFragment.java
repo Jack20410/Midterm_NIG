@@ -37,7 +37,7 @@ public class LoginFragment extends Fragment {
 
         // Initialize Firebase and UI elements
         mAuth = FirebaseAuth.getInstance();
-        usersRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
+        usersRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("users");
 
         inputField = view.findViewById(R.id.emailField); // Generic input field for username/email
@@ -83,67 +83,46 @@ public class LoginFragment extends Fragment {
     }
 
     private void fetchEmailByUsername(String username, String password) {
-        // Check if user is authenticated
-        if (mAuth.getCurrentUser() == null) {
-            Log.e("LoginFragment", "User is not authenticated!");
-            Toast.makeText(getContext(), "Please log in to continue.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Debugging log for query initiation
-        Log.d("LoginFragment", "Querying database for username: " + username);
-
         usersRef.orderByChild("username").equalTo(username)
                 .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            Log.d("LoginFragment", "Username exists in database: " + username);
-
+                        Log.d("LoginFragment", "Snapshot received: " + snapshot.toString());
+                        if (snapshot.exists() && snapshot.getChildrenCount() > 0) {
                             for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                                 String email = userSnapshot.child("email").getValue(String.class);
-
                                 if (email != null) {
-                                    Log.d("LoginFragment", "Email retrieved: " + email);
                                     authenticateUser(email, password);
                                     return;
-                                } else {
-                                    Log.e("LoginFragment", "Email field is null for username: " + username);
-                                    Toast.makeText(getContext(), "Email not found for this username.", Toast.LENGTH_SHORT).show();
                                 }
                             }
+                            Toast.makeText(getContext(), "Invalid username.", Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.e("LoginFragment", "No user found with username: " + username);
                             Toast.makeText(getContext(), "No user found with that username.", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("LoginFragment", "Database query failed: " + error.getMessage());
+                        Log.e("LoginFragment", "Query cancelled: " + error.getMessage());
                         Toast.makeText(getContext(), "Error fetching data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+
+
+
     private void authenticateUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                String uid = mAuth.getCurrentUser().getUid();
-                usersRef.child(uid).get().addOnCompleteListener(userTask -> {
-                    if (userTask.isSuccessful()) {
-                        String username = userTask.getResult().child("username").getValue(String.class);
-                        if (username != null) {
-                            Toast.makeText(getContext(), "Welcome, " + username + "!", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(getContext(), OnlineActivity.class);
-                            intent.putExtra("username", username);
-                            startActivity(intent);
-                            requireActivity().finish();
-                        }
-                    }
-                });
+                // Redirect to OnlineActivity on success
+                Intent intent = new Intent(getContext(), OnlineActivity.class);
+                startActivity(intent);
+                requireActivity().finish();
             } else {
-                Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("LoginFragment", "Login failed: " + task.getException().getMessage());
+                Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
             }
         });
     }

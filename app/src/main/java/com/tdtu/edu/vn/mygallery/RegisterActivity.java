@@ -63,12 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (username.contains("@")) {
-            usernameField.setError("Username cannot contain '@'");
-            usernameField.requestFocus();
-            return;
-        }
-
         if (email.isEmpty()) {
             emailField.setError("Email is required");
             emailField.requestFocus();
@@ -81,28 +75,31 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        String hashedPassword = hashPassword(password);
-
-        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://midtermnig-default-rtdb.firebaseio.com/")
+        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("users");
+
+        String hashedPassword = hashPassword(password);
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                String uid = mAuth.getCurrentUser().getUid();
-                User user = new User(username, email, hashedPassword); // Create a User object with both username and email
+                String uid = mAuth.getCurrentUser().getUid(); // Firebase Auth UID
+                User user = new User(username, email, password); // Save plaintext password for Firebase Auth only
+
                 usersRef.child(uid).setValue(user).addOnCompleteListener(dbTask -> {
                     if (dbTask.isSuccessful()) {
                         Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_SHORT).show();
-                        navigateToLogin(); // Redirect to LoginActivity
+                        navigateToLogin();
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Failed to save user data.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Failed to save user data: " + dbTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
                 Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
+
 
     private void navigateToLogin() {
         Intent intent = new Intent(this, MainActivity.class);
