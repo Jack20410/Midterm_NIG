@@ -215,7 +215,7 @@ public class OfflineAlbumInspect extends AppCompatActivity {
                 RecyclerView recyclerView = findViewById(R.id.recyclerView);
                 adapter = new OfflineAlbumImageAdapter(imageList, this, albumDao, currentAlbum);
                 recyclerView.setAdapter(adapter);
-                recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+                recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
             } else {
                 adapter.notifyDataSetChanged(); // Refresh the adapter with new data
             }}
