@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -51,7 +52,42 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
         // Set up click listener to inspect the image
         holder.bind(imageUrl);
+
+        // Add a long-click listener to show the contextual menu
+        holder.itemView.setOnLongClickListener(v -> {
+            showContextMenu(v, position);
+            return true; // Indicate the event is consumed
+        });
     }
+
+    private void showContextMenu(View view, int position) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.getMenuInflater().inflate(R.menu.image_context_menu_online, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.remove_img_online) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Delete Picture")
+                        .setMessage("Do you want to delete this picture?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            Log.d("ImagesAdapter", "Deleting image at position: " + position);
+
+                            // Remove the image from Firebase or the list (update this logic as needed)
+
+                            imageUrls.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, imageUrls.size());
+                            Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .create()
+                        .show();
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
+    }
+
 
     @Override
     public void onViewRecycled(@NonNull ImageViewHolder holder) {
@@ -68,20 +104,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton deleteButton;
-
+//        ImageButton deleteButton;
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);  // Ensure this matches your XML layout ID
-            deleteButton = itemView.findViewById(R.id.deleteButton);  // Reference the delete button
-
-            // Set delete button listener once to avoid repeated calls
-            deleteButton.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    showDeleteConfirmationDialog(position);
-                }
-            });
         }
 
         public void bind(String imageUrl) {
