@@ -62,7 +62,7 @@
             android:scaleType="center"
             android:contentDescription="Add to Favorites"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_add" />
+            android:src="@drawable/baseline_favorite_border_24" />
 
         <!-- Move to Recycle Bin Button -->
         <ImageButton
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="Move to Recycle Bin"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete" />
+            android:src="@drawable/baseline_delete_outline_24" />
 
         <!-- Add/Modify Tag Button -->
         <ImageButton
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="Add or Modify Tag"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_edit" />
+            android:src="@drawable/outline_edit_24" />
 
         <!-- Open Map Button -->
         <ImageButton
@@ -92,6 +92,6 @@
             android:layout_height="wrap_content"
             android:contentDescription="Open Map"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_compass" />
+            android:src="@drawable/baseline_info_outline_24" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

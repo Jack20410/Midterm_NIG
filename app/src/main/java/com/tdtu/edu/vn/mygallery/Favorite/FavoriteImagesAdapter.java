@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
 import com.tdtu.edu.vn.mygallery.R;
 
+import android.widget.PopupMenu;
 import android.widget.Toast;
 import java.io.File;
 import java.util.List;
@@ -35,7 +36,7 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image_favo_inspect, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image_favorite, parent, false);
         return new ViewHolder(view);
     }
 
@@ -47,9 +48,13 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
                 .load(new File(imagePath))  // Load from the local file path
                 .placeholder(R.drawable.album_placeholder)  // Add a placeholder image
                 .into(holder.imageView);
-        // Set an OnClickListener on the image view
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.imageView.setOnLongClickListener(v -> {
+            showContextMenu(v, position, imagePath);
+            return true;
+        });
+        // Set an OnClickListener on the image view
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Log the imagePath to check if it's null or valid
@@ -64,32 +69,37 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
             }
         });
 
-        // Handle the delete button click
-        holder.deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Remove Picture")
-                    .setMessage("Do you want to permanently delete this picture from Favorites?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        // Permanently delete the image from Favorites
-                        boolean isDeleted = permanentlyDeleteFromFavorites(imagePath);
-
-                        if (isDeleted) {
-                            // Remove the item from the list and notify the adapter
-                            imagePaths.remove(position);
-                            notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, imagePaths.size());
-
-                            Toast.makeText(context, "Image permanently deleted from Favorites", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(context, "Failed to delete image from Favorites", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .create()
-                    .show();
-        });
-
     }
+
+    private void showContextMenu(View view, int position, String imagePath) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.getMenuInflater().inflate(R.menu.image_options_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.remove_favorites) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Remove Picture")
+                        .setMessage("Do you want to permanently delete this picture from Favorites?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            boolean isDeleted = permanentlyDeleteFromFavorites(imagePath);
+                            if (isDeleted) {
+                                imagePaths.remove(position);
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, imagePaths.size());
+                                Toast.makeText(context, "Image permanently deleted from Favorites", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(context, "Failed to delete image from Favorites", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .create()
+                        .show();
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
+    }
+
 
     @Override
     public int getItemCount() {
@@ -140,13 +150,13 @@ public class FavoriteImagesAdapter extends RecyclerView.Adapter<FavoriteImagesAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton deleteButton;
+//        ImageButton deleteButton;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
+//            deleteButton = itemView.findViewById(R.id.deleteButton);
 
         }
     }

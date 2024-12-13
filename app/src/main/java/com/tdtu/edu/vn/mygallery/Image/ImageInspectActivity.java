@@ -122,6 +122,7 @@ public class ImageInspectActivity extends AppCompatActivity {
                 Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
 

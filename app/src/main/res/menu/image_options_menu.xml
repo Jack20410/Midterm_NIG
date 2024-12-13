@@ -1,10 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/add_to_favorites"
-        android:title="Add to Favorites"
+        android:id="@+id/remove_favorites"
+        android:title="Remove from favorites"
         android:icon="@drawable/ic_favorite" />
-    <item
-        android:id="@+id/move_to_recycle_bin"
-        android:title="Move to Recycle Bin"
-        android:icon="@drawable/baseline_delete_outline_24" />
+
 </menu>

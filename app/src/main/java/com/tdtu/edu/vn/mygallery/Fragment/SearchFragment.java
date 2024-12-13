@@ -10,8 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,8 +40,8 @@ public class SearchFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private EditText searchInput;
-    private Button searchButton;
-    private Button searchDateButton;
+    private ImageButton searchButton;
+    private ImageButton searchDateButton;
     private List<ImageData> allImages;
     private ImageTagDatabase db;
 

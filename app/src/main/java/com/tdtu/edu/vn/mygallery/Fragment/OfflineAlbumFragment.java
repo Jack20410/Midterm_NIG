@@ -69,7 +69,6 @@ public class OfflineAlbumFragment extends Fragment {
                 Toast.makeText(requireContext(), "Please enter an album name", Toast.LENGTH_SHORT).show();
             }
         });
-
         albumRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columns
     }
 

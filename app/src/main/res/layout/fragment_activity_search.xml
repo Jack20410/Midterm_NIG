@@ -9,7 +9,7 @@
         android:id="@+id/searchBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,27 +18,32 @@
         <!-- Search by Keyword -->
         <EditText
             android:id="@+id/searchInput"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="7"
             android:layout_height="wrap_content"
-            android:hint="Search by tag or keyword" />
+            android:padding="12dp"
+            android:hint="Search photo"
+            android:layout_marginRight="5dp"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search by Keyword"
-            android:layout_marginTop="8dp" />
+            android:src="@drawable/baseline_search_24"
+            android:padding="12dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/blue_border_rounded_cornwe"/>
 
         <!-- Search by Date -->
-        <Button
+        <ImageButton
             android:id="@+id/searchDateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search by Date"
-            android:layout_marginTop="8dp" />
+            android:padding="12dp"
+            android:src="@drawable/outline_calendar_month_24"
+            android:background="@drawable/blue_border_rounded_cornwe"/>
 
     </LinearLayout>
-
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -51,19 +56,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchBar" />
-
-    <!-- Bottom Navigation -->
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottomNavigationView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:menu="@menu/bottom_navigation_menu"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:labelVisibilityMode="labeled"-->
-<!--        app:itemIconTint="@color/selector_bottom_nav"-->
-<!--        app:itemTextColor="@color/selector_bottom_nav"-->
-<!--        android:background="?android:attr/windowBackground" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

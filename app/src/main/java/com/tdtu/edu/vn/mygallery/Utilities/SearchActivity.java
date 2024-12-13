@@ -2,8 +2,8 @@ package com.tdtu.edu.vn.mygallery.Utilities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -21,7 +21,7 @@ public class SearchActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private EditText searchInput;
-    private Button searchButton;
+    private ImageButton searchButton;
 
     private List<String> allImages;
 

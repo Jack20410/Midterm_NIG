@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,7 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image_favorite, parent, false);
         return new ViewHolder(view);
     }
 
@@ -66,28 +67,60 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
                 context.startActivity(intent);
             });
 
+            // Set a long click listener to show the context menu
+            holder.itemView.setOnLongClickListener(v -> {
+                showContextMenu(v, position, imagePath);
+                return true;
+            });
+
         } else {
             Log.e("OfflineAlbumImageAdapter", "Image file not found: " + imagePath);
             holder.imageView.setImageResource(R.drawable.album_placeholder);
         }
 
         // Handle delete button click
-        holder.deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Remove Picture from Album")
-                    .setMessage("Are you sure you want to remove this picture from the album?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        removeFromAlbum(imagePath);
-                        imagePaths.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, imagePaths.size());
-                        Toast.makeText(context, "Image removed from album", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .create()
-                    .show();
-        });
+//        holder.deleteButton.setOnClickListener(v -> {
+//            new AlertDialog.Builder(context)
+//                    .setTitle("Remove Picture from Album")
+//                    .setMessage("Are you sure you want to remove this picture from the album?")
+//                    .setPositiveButton("Yes", (dialog, which) -> {
+//                        removeFromAlbum(imagePath);
+//                        imagePaths.remove(position);
+//                        notifyItemRemoved(position);
+//                        notifyItemRangeChanged(position, imagePaths.size());
+//                        Toast.makeText(context, "Image removed from album", Toast.LENGTH_SHORT).show();
+//                    })
+//                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+//                    .create()
+//                    .show();
+//        });
     }
+
+    private void showContextMenu(View view, int position, String imagePath) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.getMenuInflater().inflate(R.menu.image_context_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.remove_album) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Remove Picture from Album")
+                        .setMessage("Are you sure you want to remove this picture from the album?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            removeFromAlbum(imagePath);
+                            imagePaths.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, imagePaths.size());
+                            Toast.makeText(context, "Image removed from album", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .create()
+                        .show();
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
+    }
+
 
     @Override
     public int getItemCount() {
@@ -108,12 +141,12 @@ public class OfflineAlbumImageAdapter extends RecyclerView.Adapter<OfflineAlbumI
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton deleteButton;
+//        ImageButton deleteButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
+//            deleteButton = itemView.findViewById(R.id.deleteButton);
         }
     }
 }

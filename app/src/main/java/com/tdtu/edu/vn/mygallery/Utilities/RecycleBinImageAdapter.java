@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,7 +36,7 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recycle_bin_image, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image_favorite, parent, false);
         return new ImageViewHolder(view);
     }
 
@@ -48,18 +49,50 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
                 .error(R.drawable.three_button)
                 .into(holder.imageView);
 
-        // Restore Button Action
-        holder.restoreButton.setOnClickListener(v -> restoreImage(imagePath, position));
-
-        // Delete Button Action
-        holder.deleteButton.setOnClickListener(v -> new AlertDialog.Builder(context)
-                .setTitle("Permanently Delete Picture")
-                .setMessage("Are you sure you want to permanently delete this picture?")
-                .setPositiveButton("Yes", (dialog, which) -> deleteImage(imagePath, position))
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show());
+//        // Restore Button Action
+//        holder.restoreButton.setOnClickListener(v -> restoreImage(imagePath, position));
+//
+//        // Delete Button Action
+//        holder.deleteButton.setOnClickListener(v -> new AlertDialog.Builder(context)
+//                .setTitle("Permanently Delete Picture")
+//                .setMessage("Are you sure you want to permanently delete this picture?")
+//                .setPositiveButton("Yes", (dialog, which) -> deleteImage(imagePath, position))
+//                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+//                .create()
+//                .show());
+        // Add a long-click listener for the contextual menu
+        holder.itemView.setOnLongClickListener(v -> {
+            showContextMenu(v, position, imagePath);
+            return true; // Indicate that the event is consumed
+        });
     }
+
+    private void showContextMenu(View view, int position, String imagePath) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.getMenuInflater().inflate(R.menu.image_context_menu_bin, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.remove:
+                    new AlertDialog.Builder(context)
+                            .setTitle("Permanently Delete Picture")
+                            .setMessage("Are you sure you want to permanently delete this picture?")
+                            .setPositiveButton("Yes", (dialog, which) -> deleteImage(imagePath, position))
+                            .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                            .create()
+                            .show();
+                    return true;
+
+                case R.id.restore:
+                    restoreImage(imagePath, position);
+                    return true;
+
+                default:
+                    return false;
+            }
+        });
+        popupMenu.show();
+    }
+
 
     @Override
     public int getItemCount() {
@@ -121,13 +154,13 @@ public class RecycleBinImageAdapter extends RecyclerView.Adapter<RecycleBinImage
 
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton deleteButton, restoreButton;
+//        ImageButton deleteButton, restoreButton;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
-            restoreButton = itemView.findViewById(R.id.restoreButton);
+//            deleteButton = itemView.findViewById(R.id.deleteButton);
+//            restoreButton = itemView.findViewById(R.id.restoreButton);
         }
     }
 }

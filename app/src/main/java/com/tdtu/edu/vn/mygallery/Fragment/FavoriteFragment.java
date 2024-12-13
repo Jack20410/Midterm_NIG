@@ -26,6 +26,7 @@ public class FavoriteFragment extends Fragment {
 
     private List<String> favoriteImages;
     private RecyclerView recyclerView;
+    private GridLayoutManager gridLayoutManager;
 
     @Nullable
     @Override
@@ -33,7 +34,8 @@ public class FavoriteFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_activity_favorite, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewFavorites);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3)); // 3 columns grid layout
+        gridLayoutManager = new GridLayoutManager(requireContext(), 2);
+        recyclerView.setLayoutManager(gridLayoutManager); // 3 columns grid layout
 
         favoriteImages = new ArrayList<>();
         loadFavoriteImages(); // Load images from the Favorites folder
