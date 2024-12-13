@@ -18,7 +18,7 @@
 
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:dataExtractionRules="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -44,7 +44,7 @@
         <!-- Other activities -->
         <activity android:name=".RegisterActivity" android:exported="true" />
         <activity android:name=".Image.ImagesDisplayActivity" />
-        <activity android:name=".OnlineActivity" />
+        <activity android:name=".OnlineActivity" android:exported="true" />
         <activity android:name=".Utilities.RecycleBinActivity" />
         <activity android:name=".Image.ImageInspectActivity" />
         <activity
@@ -59,7 +59,6 @@
             android:label="Search"
             android:exported="true" />
         <activity android:name=".PhotoLocationActivity" android:exported="true" />
-        <activity android:name=".Image.ImageAddActivity" android:exported="true" />
 
         <!-- NotificationReceiver -->
         <receiver
