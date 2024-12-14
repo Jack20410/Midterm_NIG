@@ -70,6 +70,14 @@ public class OnlineActivity extends AppCompatActivity {
                 return false;
             }
         });
+        // SearchView query hint behavior
+        searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                searchView.setQueryHint("");
+            } else {
+                searchView.setQueryHint("Search images by tags");
+            }
+        });
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
             database.getReference("current_user").removeValue();
