@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,12 +39,16 @@ public class OnlineActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private FirebaseAuth mAuth;
+    private TextView welcomeTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online);
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
+        welcomeTextView = findViewById(R.id.welcomeTextView);
+
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -67,12 +72,15 @@ public class OnlineActivity extends AppCompatActivity {
         });
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
-            mAuth.signOut(); // Sign out from Firebase Auth
+            database.getReference("current_user").removeValue();
             Toast.makeText(OnlineActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-            // Redirect to LoginActivity
-            startActivity(new Intent(OnlineActivity.this, LoginFragment.class));
-            finish(); // Close the current activity
+
+            Intent intent = new Intent(OnlineActivity.this, MainActivity.class);
+            intent.putExtra("select_login", true);  // Pass extra to load LoginFragment
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
+
         // Initialize FirebaseDatabase instance
         database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
         // Initialize RecyclerView and AlbumAdapter
@@ -82,10 +90,33 @@ public class OnlineActivity extends AppCompatActivity {
         recyclerView.setAdapter(albumAdapter);
         Button fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> showCreateAlbumDialog());
+        //Load username for Personalized welcome
+        loadUserName();
         // Load albums from Firebase
         loadAlbumsFromFirebase();
         recyclerView.setAdapter(albumAdapter);
         albumAdapter.notifyDataSetChanged();
+    }
+
+    private void loadUserName() {
+        String userId = mAuth.getCurrentUser().getUid();
+        database.getReference("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String username = snapshot.child("username").getValue(String.class);
+                if (username != null && !username.isEmpty()) {
+                    welcomeTextView.setText("Welcome " + username + "!");
+                    Toast.makeText(OnlineActivity.this, "Welcome " + username + "!", Toast.LENGTH_SHORT).show();
+                } else {
+                    welcomeTextView.setText("Welcome!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(OnlineActivity.this, "Failed to load username.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateRecyclerViewWithImages(List<String> imageUrls) {
