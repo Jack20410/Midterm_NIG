@@ -2,6 +2,7 @@ package com.tdtu.edu.vn.mygallery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,8 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-
+import android.widget.ProgressBar;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -80,14 +80,21 @@ public class OnlineActivity extends AppCompatActivity {
         });
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
-            database.getReference("current_user").removeValue();
+            // Log out the user from Firebase Authentication
+            FirebaseAuth.getInstance().signOut();
+
+            // Show a confirmation toast
             Toast.makeText(OnlineActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
 
+            // Redirect to the login screen (MainActivity hosting LoginFragment)
             Intent intent = new Intent(OnlineActivity.this, MainActivity.class);
-            intent.putExtra("select_login", true);  // Pass extra to load LoginFragment
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear activity stack
             startActivity(intent);
+
+            // Finish the current activity to prevent back navigation
+            finish();
         });
+
 
         // Initialize FirebaseDatabase instance
         database = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app");
@@ -258,6 +265,10 @@ public class OnlineActivity extends AppCompatActivity {
         builder.show();
     }
     private void loadAlbumsFromFirebase() {
+        // Show ProgressBar
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+
         DatabaseReference myRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -267,6 +278,7 @@ public class OnlineActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 albumList.clear(); // Clear the list to avoid duplicates
+
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Album album = snapshot.getValue(Album.class);
                     if (album != null) {
@@ -274,12 +286,23 @@ public class OnlineActivity extends AppCompatActivity {
                         albumList.add(album);
                     }
                 }
-                albumAdapter.notifyDataSetChanged(); // Update RecyclerView
+
+                // Notify adapter of dataset changes
+                albumAdapter.notifyDataSetChanged();
+
+                // Hide ProgressBar
+                progressBar.setVisibility(View.GONE);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Hide ProgressBar in case of an error
+                progressBar.setVisibility(View.GONE);
+
+                // Show an error message
                 Toast.makeText(OnlineActivity.this, "Failed to load albums", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 }

@@ -40,10 +40,16 @@ public class LoginFragment extends Fragment {
         usersRef = FirebaseDatabase.getInstance("https://midterm-d06db-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference("users");
 
-        inputField = view.findViewById(R.id.emailField); // Generic input field for username/email
+        inputField = view.findViewById(R.id.emailField);
         passwordField = view.findViewById(R.id.passwordField);
         loginButton = view.findViewById(R.id.loginButton);
         registerButton = view.findViewById(R.id.registerButton);
+
+        // Check if the user is already logged in
+        if (mAuth.getCurrentUser() != null) {
+            // User is already logged in, redirect to OnlineActivity
+            redirectToOnlineActivity();
+        }
 
         // Login logic
         loginButton.setOnClickListener(v -> loginUser());
@@ -87,7 +93,6 @@ public class LoginFragment extends Fragment {
                 .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Log.d("LoginFragment", "Snapshot received: " + snapshot.toString());
                         if (snapshot.exists() && snapshot.getChildrenCount() > 0) {
                             for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                                 String email = userSnapshot.child("email").getValue(String.class);
@@ -104,27 +109,26 @@ public class LoginFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("LoginFragment", "Query cancelled: " + error.getMessage());
                         Toast.makeText(getContext(), "Error fetching data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-
-
-
     private void authenticateUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Redirect to OnlineActivity on success
-                Intent intent = new Intent(getContext(), OnlineActivity.class);
-                startActivity(intent);
-                requireActivity().finish();
+                redirectToOnlineActivity();
             } else {
-                Log.e("LoginFragment", "Login failed: " + task.getException().getMessage());
                 Toast.makeText(getContext(), "Login failed! Check your credentials.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void redirectToOnlineActivity() {
+        Intent intent = new Intent(getContext(), OnlineActivity.class);
+        startActivity(intent);
+        requireActivity().finish(); // Close the current activity to prevent going back to the login screen
+    }
 }
+
