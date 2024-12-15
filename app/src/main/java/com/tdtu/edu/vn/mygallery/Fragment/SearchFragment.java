@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,9 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import androidx.exifinterface.media.ExifInterface;
 
-import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
+
+import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
+
 import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
 import com.tdtu.edu.vn.mygallery.Image.ImageData;
 import com.tdtu.edu.vn.mygallery.Image.ImageTag;
@@ -135,29 +136,12 @@ public class SearchFragment extends Fragment {
     }
 
     private void onImageClicked(String imagePath) {
-        Toast.makeText(requireContext(), "Image clicked: " + imagePath, Toast.LENGTH_SHORT).show();
-        // Handle image click action
+        Intent intent = new Intent(requireContext(), ImageInspectActivity.class);
+        intent.putExtra("IMAGE_PATH", imagePath);
+        startActivity(intent);
     }
 
-    private void onLocationIconClicked(String imagePath) {
-        try {
-            ExifInterface exif = new ExifInterface(imagePath);
-            float[] latLong = new float[2];
-            Intent intent = new Intent(requireContext(), PhotoLocationActivity.class);
-            intent.putExtra("photoPath", imagePath);
 
-            if (exif.getLatLong(latLong)) {
-                intent.putExtra("latitude", latLong[0]);
-                intent.putExtra("longitude", latLong[1]);
-            } else {
-                Toast.makeText(requireContext(), "No location data available for this photo", Toast.LENGTH_SHORT).show();
-            }
-
-            startActivity(intent);
-        } catch (Exception e) {
-            Log.e("SearchFragment", "Error reading EXIF data: " + e.getMessage());
-        }
-    }
 
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();

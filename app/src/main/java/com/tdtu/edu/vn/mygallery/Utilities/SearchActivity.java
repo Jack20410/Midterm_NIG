@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tdtu.edu.vn.mygallery.Image.ImageAdapter;
 import com.tdtu.edu.vn.mygallery.Image.ImageInspectActivity;
-import com.tdtu.edu.vn.mygallery.PhotoLocationActivity;
 import com.tdtu.edu.vn.mygallery.R;
 
 import java.util.ArrayList;
@@ -58,6 +57,8 @@ public class SearchActivity extends AppCompatActivity {
     private void displayImagesInGrid(List<String> images) {
         ImageAdapter adapter = new ImageAdapter(images, this, this::onImageClicked);
         recyclerView.setAdapter(adapter);
+
+        adapter.notifyDataSetChanged();
     }
 
     private void onImageClicked(String imagePath) {
@@ -66,9 +67,5 @@ public class SearchActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void onLocationIconClicked(String imagePath) {
-        Intent intent = new Intent(this, PhotoLocationActivity.class);
-        intent.putExtra("photoPath", imagePath);
-        startActivity(intent);
-    }
+
 }
